@@ -6,5 +6,15 @@ defmodule WordCount do
   """
   @spec count(String.t()) :: map
   def count(sentence) do
+    sentence
+    |> String.split(~r{[^\w\-]|_}u, trim: true)
+    |> Enum.reduce(%{}, fn wd, accum ->
+      w = String.downcase(wd)
+
+      case accum do
+        %{^w => count} -> %{accum | w => count + 1}
+        _ -> Map.put_new(accum, w, 1)
+      end
+    end)
   end
 end
