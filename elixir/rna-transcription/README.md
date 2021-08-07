@@ -23,7 +23,7 @@ each nucleotide with its complement:
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -58,4 +58,5 @@ out there where answers might be found.
 Hyperphysics [http://hyperphysics.phy-astr.gsu.edu/hbase/Organic/transcription.html](http://hyperphysics.phy-astr.gsu.edu/hbase/Organic/transcription.html)
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
