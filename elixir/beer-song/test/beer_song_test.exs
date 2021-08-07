@@ -2,7 +2,12 @@ defmodule BeerSongTest do
   use ExUnit.Case
 
   describe "verse" do
-    # @tag :pending
+    test "with incorrect range" do
+      assert_raise ArgumentError, "Invalid verse: -1, valid range: 99..0", fn ->
+        BeerSong.verse(-1)
+      end
+    end
+
     test "first generic verse" do
       assert BeerSong.verse(99) == """
              99 bottles of beer on the wall, 99 bottles of beer.
@@ -10,7 +15,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "last generic verse" do
       assert BeerSong.verse(3) == """
              3 bottles of beer on the wall, 3 bottles of beer.
@@ -18,7 +22,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "verse with 2 bottles" do
       assert BeerSong.verse(2) == """
              2 bottles of beer on the wall, 2 bottles of beer.
@@ -26,7 +29,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "verse with 1 bottle" do
       assert BeerSong.verse(1) == """
              1 bottle of beer on the wall, 1 bottle of beer.
@@ -34,7 +36,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "verse with 0 bottles" do
       assert BeerSong.verse(0) == """
              No more bottles of beer on the wall, no more bottles of beer.
@@ -44,7 +45,6 @@ defmodule BeerSongTest do
   end
 
   describe "lyrics" do
-    @tag :pending
     test "first two verses" do
       assert BeerSong.lyrics(99..98) == """
              99 bottles of beer on the wall, 99 bottles of beer.
@@ -55,7 +55,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "last three verses" do
       assert BeerSong.lyrics(2..0) == """
              2 bottles of beer on the wall, 2 bottles of beer.
@@ -69,7 +68,6 @@ defmodule BeerSongTest do
              """
     end
 
-    @tag :pending
     test "all verses" do
       assert BeerSong.lyrics() == """
              99 bottles of beer on the wall, 99 bottles of beer.
