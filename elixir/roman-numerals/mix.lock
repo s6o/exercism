@@ -1,0 +1,3 @@
+%{
+  "publicist": {:hex, :publicist, "1.1.0", "72b732800d926f2e17e0fe72bd0876983acd4b264deaf364b58234d3fecad9f1", [:mix], [], "hexpm", "7ed86a54e87e48b7f2fb2d6bb365f0a5e46e987f843494c860dee61c357e2953"},
+}

@@ -40,14 +40,14 @@ In Roman numerals 1990 is MCMXC:
 2000=MM
 8=VIII
 
-See also: http://www.novaroma.org/via_romana/numbers.html
+See also: [Roman Numbers](http://www.novaroma.org/via_romana/numbers.html)
 
 ## Running tests
 
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -82,4 +82,5 @@ out there where answers might be found.
 The Roman Numeral Kata [http://codingdojo.org/cgi-bin/index.pl?KataRomanNumerals](http://codingdojo.org/cgi-bin/index.pl?KataRomanNumerals)
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
