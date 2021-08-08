@@ -14,13 +14,13 @@ section from exercism is also useful.
 
 Run the test suite. It can be run with `cargo`, which is installed with rust.
 
-```
-$ cargo test
+```bash
+cargo test
 ```
 
 This will compile the `hello-world` crate and run the test, which fails.
 
-```
+```plain
 running 1 test
 test test_hello_world ... FAILED
 
@@ -42,7 +42,7 @@ The `test_hello_world` failure states that it is expecting the value,
 `"Hello, World!"`, to be returned from `hello()`.
 The left side of the assertion (at line 5) should be equal to the right side.
 
-```
+```plain
 ---- test_hello_world stdout ----
 thread 'test_hello_world' panicked at 'assertion failed: `(left == right)`
 (left: `"Hello, World!"`, right: `"Goodbye, World!"`)', tests/hello-world.rs:5
@@ -63,7 +63,7 @@ pub fn hello() -> &'static str {
 
 Run the test again. This time, it will pass.
 
-```
+```plain
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured
@@ -87,6 +87,6 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured
 Once the test is passing, you can submit your code with the following
 command:
 
-```
-$ exercism submit src/lib.rs
+```bash
+exercism submit src/lib.rs
 ```
