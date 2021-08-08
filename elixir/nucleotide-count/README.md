@@ -7,6 +7,7 @@ DNA is a large molecule that is built from an extremely long sequence of individ
 4 types exist in DNA and these differ only slightly and can be represented as the following symbols: 'A' for adenine, 'C' for cytosine, 'G' for guanine, and 'T' thymine.
 
 Here is an analogy:
+
 - twigs are to birds nests as
 - nucleotides are to DNA as
 - legos are to lego houses as
@@ -17,7 +18,7 @@ Here is an analogy:
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -52,4 +53,5 @@ out there where answers might be found.
 The Calculating DNA Nucleotides_problem at Rosalind [http://rosalind.info/problems/dna/](http://rosalind.info/problems/dna/)
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
