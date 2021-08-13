@@ -43,4 +43,3 @@ you're having trouble, please visit the exercism.io [F# language page](http://ex
 ## Source
 
 [https://github.com/exercism/problem-specifications/issues/757](https://github.com/exercism/problem-specifications/issues/757)
-
