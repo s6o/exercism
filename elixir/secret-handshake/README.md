@@ -49,13 +49,12 @@ Check: 0b10110
 
 Flags &&& Check: 0b10010 (Third bit not set)
 
-
 ## Running tests
 
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -90,4 +89,5 @@ out there where answers might be found.
 Bert, in Mary Poppins [http://www.imdb.com/title/tt0058331/quotes/qt0437047](http://www.imdb.com/title/tt0058331/quotes/qt0437047)
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
