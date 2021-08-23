@@ -19,7 +19,7 @@ important thing is to make the code better!
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -50,4 +50,5 @@ the [available resources](https://exercism.io/tracks/elixir/resources)
 out there where answers might be found.
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
