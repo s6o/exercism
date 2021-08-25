@@ -35,7 +35,7 @@ Ciphertext is written out in the same formatting as the input including spaces a
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -70,4 +70,5 @@ out there where answers might be found.
 Wikipedia [https://en.wikipedia.org/wiki/Caesar_cipher](https://en.wikipedia.org/wiki/Caesar_cipher)
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
