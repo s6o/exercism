@@ -1,7 +1,6 @@
 defmodule TournamentTest do
   use ExUnit.Case
 
-  # @tag :pending
   test "typical input" do
     input = [
       "Allegoric Alaskans;Blithering Badgers;win",
@@ -25,7 +24,6 @@ defmodule TournamentTest do
     assert Tournament.tally(input) == expected
   end
 
-  @tag :pending
   test "incomplete competition (not all pairs have played)" do
     input = [
       "Allegoric Alaskans;Blithering Badgers;loss",
@@ -47,7 +45,6 @@ defmodule TournamentTest do
     assert Tournament.tally(input) == expected
   end
 
-  @tag :pending
   test "ties broken alphabetically" do
     input = [
       "Courageous Californians;Devastating Donkeys;win",
@@ -71,7 +68,6 @@ defmodule TournamentTest do
     assert Tournament.tally(input) == expected
   end
 
-  @tag :pending
   test "mostly invalid lines" do
     # Invalid input lines in an otherwise-valid game still results in valid
     # output.

@@ -25,9 +25,7 @@ A win earns a team 3 points. A draw earns 1. A loss earns 0.
 
 The outcome should be ordered by points, descending. In case of a tie, teams are ordered alphabetically.
 
-###
-
-Input
+## Input
 
 Your tallying program will receive input that looks like:
 
@@ -68,13 +66,12 @@ Formatting the output is easy with `String`'s padding functions. All number
 columns can be left-padded with spaces to a width of 2 characters, while the
 team name column can be right-padded with spaces to a width of 30.
 
-
 ## Running tests
 
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ### Pending tests
@@ -105,4 +102,5 @@ the [available resources](https://exercism.io/tracks/elixir/resources)
 out there where answers might be found.
 
 ## Submitting Incomplete Solutions
+
 It's possible to submit an incomplete solution so you can see how others have completed the exercise.
