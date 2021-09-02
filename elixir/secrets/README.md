@@ -2,7 +2,8 @@
 
 Welcome to Secrets on Exercism's Elixir Track.
 If you need help running the tests or submitting your code, check out `HELP.md`.
-If you get stuck on the exercise, check out `HINTS.md`, but try and solve it without using those first :)
+If you get stuck on the exercise, check out `HINTS.md`, but try and solve it
+without using those first :)
 
 ## Introduction
 
@@ -11,19 +12,26 @@ If you get stuck on the exercise, check out `HINTS.md`, but try and solve it wit
 Functions are treated as first class citizens in Elixir. This means functions:
 
 - Named and anonymous functions can be assigned to variables.
-- Named and anonymous functions can be passed around like data as arguments and return values.
+- Named and anonymous functions can be passed around like data as arguments and
+  return values.
 - Anonymous functions can be created dynamically.
 
-Anonymous functions, in contrast to named functions, don't have a static reference available to them, they are only available if they are assigned to a variable or immediately invoked.
+Anonymous functions, in contrast to named functions, don't have a static
+reference available to them, they are only available if they are assigned to a
+variable or immediately invoked.
 
 We might use anonymous functions to:
 
 - Hide data using lexical scope (also known as a closure).
 - Dynamically create functions at run-time.
 
-Anonymous function start with the reserved word `fn`, the arguments are separated from the body of the function with the `->` token, and they are finished with an `end`. As with named functions, the last expression in the function is _implicitly returned_ to the calling function.
+Anonymous function start with the reserved word `fn`, the arguments are
+separated from the body of the function with the `->` token, and they are
+finished with an `end`. As with named functions, the last expression in the
+function is _implicitly returned_ to the calling function.
 
-To invoke a function reference, you must use a `.` between the reference variable and the list of arguments:
+To invoke a function reference, you must use a `.` between the reference
+variable and the list of arguments:
 
 ```elixir
 function_variable = fn param ->
@@ -63,19 +71,26 @@ Bitwise.<<<(1, 2)
 
 All bitwise functions only work on integers.
 
-If you are running Elixir version 1.9 or lower, you will need to call `require Bitwise` at the beginning of the module definition to be able to use the _Bitwise_ module.
+If you are running Elixir version 1.9 or lower, you will need to call
+`require Bitwise` at the beginning of the module definition to be able to use
+the _Bitwise_ module.
 
 ## Instructions
 
-In this exercise, you've been tasked with writing the software for an encryption device that works by performing transformations on data. You need a way to flexibly create complicated functions by combining simpler functions together.
+In this exercise, you've been tasked with writing the software for an encryption
+device that works by performing transformations on data. You need a way to
+flexibly create complicated functions by combining simpler functions together.
 
-For each task, return an anonymous function that can be invoked from the calling scope.
+For each task, return an anonymous function that can be invoked from the calling
+scope.
 
-All functions should expect integer arguments. Integers are also suitable for performing bitwise operations in Elixir.
+All functions should expect integer arguments. Integers are also suitable for
+performing bitwise operations in Elixir.
 
 ## 1. Create an adder
 
-Implement `Secrets.secret_add/1`. It should return a function which takes one argument and adds to it the argument passed in to `secret_add`.
+Implement `Secrets.secret_add/1`. It should return a function which takes one
+argument and adds to it the argument passed in to `secret_add`.
 
 ```elixir
 adder = Secrets.secret_add(2)
@@ -85,7 +100,8 @@ adder.(2)
 
 ## 2. Create a subtractor
 
-Implement `Secrets.secret_subtract/1`. It should return a function which takes one argument and subtracts from it the secret passed in to `secret_subtract`.
+Implement `Secrets.secret_subtract/1`. It should return a function which takes
+one argument and subtracts from it the secret passed in to `secret_subtract`.
 
 ```elixir
 subtractor = Secrets.secret_subtract(2)
@@ -95,7 +111,8 @@ subtractor.(3)
 
 ## 3. Create a multiplier
 
-Implement `Secrets.secret_multiply/1`. It should return a function which takes one argument and multiplies it by the secret passed in to `secret_multiply`.
+Implement `Secrets.secret_multiply/1`. It should return a function which takes
+one argument and multiplies it by the secret passed in to `secret_multiply`.
 
 ```elixir
 multiplier = Secrets.secret_multiply(7)
@@ -105,7 +122,8 @@ multiplier.(3)
 
 ## 4. Create a divider
 
-Implement `Secrets.secret_divide/1`. It should return a function which takes one argument and divides it by the secret passed in to `secret_divide`.
+Implement `Secrets.secret_divide/1`. It should return a function which takes one
+argument and divides it by the secret passed in to `secret_divide`.
 
 ```elixir
 divider = Secrets.secret_divide(3)
@@ -117,7 +135,9 @@ Make use of integer division.
 
 ## 5. Create an "and"-er
 
-Implement `Secrets.secret_and/1`. It should return a function which takes one argument and performs a bitwise _and_ operation on it and the secret passed in to `secret_and`.
+Implement `Secrets.secret_and/1`. It should return a function which takes one
+argument and performs a bitwise _and_ operation on it and the secret passed in
+to `secret_and`.
 
 ```elixir
 ander = Secrets.secret_and(1)
@@ -127,7 +147,9 @@ ander.(2)
 
 ## 6. Create an "xor"-er
 
-Implement `Secrets.secret_xor/1`. It should return a function which takes one argument and performs a bitwise _xor_ operation on it and the secret passed in to `secret_xor`.
+Implement `Secrets.secret_xor/1`. It should return a function which takes one
+argument and performs a bitwise _xor_ operation on it and the secret passed in
+to `secret_xor`.
 
 ```elixir
 xorer = Secrets.secret_xor(1)
@@ -137,7 +159,9 @@ xorer.(3)
 
 ## 7. Create a function combiner
 
-Implement `Secrets.secret_combine/2`. It should return a function which takes one argument and applies to it the two functions passed in to `secret_combine` in order.
+Implement `Secrets.secret_combine/2`. It should return a function which takes
+one argument and applies to it the two functions passed in to `secret_combine`
+in order.
 
 ```elixir
 multiply = Secrets.secret_multiply(7)
