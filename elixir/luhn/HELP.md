@@ -5,7 +5,7 @@
 Execute the tests with:
 
 ```bash
-$ mix test
+mix test
 ```
 
 ## Pending tests
@@ -26,7 +26,7 @@ end
 If you wish to run all tests at once, you can include all skipped test by using the `--include` flag on the `mix test` command:
 
 ```bash
-$ mix test --include pending
+mix test --include pending
 ```
 
 Or, you can enable all the tests by commenting out the `ExUnit.configure` line in the file `test/test_helper.exs`.
@@ -56,4 +56,4 @@ If you'd like help solving the exercise, check the following pages:
 Should those resources not suffice, you could submit your (incomplete) solution to request mentoring.
 
 If you're stuck on something, it may help to look at some of the [available resources](https://exercism.io/docs/tracks/elixir/resources) out there where answers might be found.
-If you can't find what you're looking for in the documentation, feel free to ask help in the Exercism's BEAM [gitter channel](https://gitter.im/exercism/xerlang).
+If you can't find what you're looking for in the documentation, feel free to ask help in the Exercism's BEAM [gitter channel](https://gitter.im/exercism/xerlang)

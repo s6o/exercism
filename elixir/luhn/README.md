@@ -14,8 +14,7 @@ Numbers.
 
 The task is to check if a given string is valid.
 
-Validating a Number
-------
+## Validating a Number
 
 Strings of length 1 or less are not valid. Spaces are allowed in the input,
 but they should be stripped before checking. All other non-digit characters
@@ -89,4 +88,4 @@ Sum the digits
 
 ### Based on
 
-The Luhn Algorithm on Wikipedia - http://en.wikipedia.org/wiki/Luhn_algorithm
+The Luhn Algorithm on Wikipedia - [Luhn](http://en.wikipedia.org/wiki/Luhn_algorithm)
