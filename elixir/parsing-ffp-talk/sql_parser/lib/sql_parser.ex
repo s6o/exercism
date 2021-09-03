@@ -1,13 +1,41 @@
 defmodule SqlParser do
   def run() do
-    input = "foo_1, bar_2 col4"
+    input = "select
+      foo_1, bar_2, col4
+      from some_table
+    "
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
 
   defp parse(input) do
-    parser = columns()
+    parser = select_statement()
     parser.(input)
+  end
+
+  defp select_statement() do
+    sequence([
+      keyword(:select),
+      columns(),
+      keyword(:from),
+      token(identifier())
+    ])
+    |> map(fn [_, columns, _, from] ->
+      %{
+        statement: :select,
+        columns: columns,
+        from: from
+      }
+    end)
+  end
+
+  defp keyword(expected) do
+    identifier()
+    |> token()
+    |> satisfy(fn identifier ->
+      String.upcase(identifier) == String.upcase(to_string(expected))
+    end)
+    |> map(fn _ -> expected end)
   end
 
   defp columns(), do: separated_list(token(identifier()), token(char(?,)))
