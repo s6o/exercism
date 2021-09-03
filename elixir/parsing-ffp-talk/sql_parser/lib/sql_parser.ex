@@ -1,13 +1,42 @@
 defmodule SqlParser do
   def run() do
-    input = "foo_1 bar_2"
+    input = "
+        foo_1
+          bar_2
+    "
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
 
   defp parse(input) do
-    parser = identifier()
+    parser = token(identifier()) |> many()
     parser.(input)
+  end
+
+  # sequence([ascii_letter(), char(?_), digit()])
+
+  defp token(parser) do
+    sequence([
+      many(choice([char(?\s), char(?\n)])),
+      parser,
+      many(choice([char(?\s), char(?\n)]))
+    ])
+    |> map(fn [_lw, term, _tw] -> term end)
+  end
+
+  defp sequence(parsers) do
+    fn input ->
+      case parsers do
+        [] ->
+          {:ok, [], input}
+
+        [first_parser | other_parsers] ->
+          with {:ok, first_term, rest} <- first_parser.(input),
+               {:ok, other_terms, rest} <- sequence(other_parsers).(rest) do
+            {:ok, [first_term | other_terms], rest}
+          end
+      end
+    end
   end
 
   defp map(parser, mapper) do
