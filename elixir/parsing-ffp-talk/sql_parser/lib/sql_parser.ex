@@ -1,13 +1,27 @@
 defmodule SqlParser do
   def run() do
-    input = "select foo from bar"
+    input = "1_foo bar_2"
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
 
   defp parse(input) do
-    parser = char(?_)
+    parser = choice([ascii_letter(), char(?_), digit()])
     parser.(input)
+  end
+
+  defp choice(parsers) do
+    fn input ->
+      case parsers do
+        [] ->
+          {:error, "no parsers succeeded"}
+
+        [first_parser | other_parsers] ->
+          with {:error, _reason} <- first_parser.(input) do
+            choice(other_parsers).(input)
+          end
+      end
+    end
   end
 
   defp digit(), do: satisfy(char(), fn char -> char in ?0..?9 end)
