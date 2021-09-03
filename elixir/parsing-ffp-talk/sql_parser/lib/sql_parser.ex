@@ -6,6 +6,13 @@ defmodule SqlParser do
   end
 
   defp parse(input) do
-    nil
+    char(input)
+  end
+
+  defp char(input) do
+    case input do
+      "" -> {:error, "unexpected end of input"}
+      <<char::utf8, rest::binary>> -> {:ok, char, rest}
+    end
   end
 end
