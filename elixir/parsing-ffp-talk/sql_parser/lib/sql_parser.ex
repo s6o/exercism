@@ -1,8 +1,11 @@
 defmodule SqlParser do
   def run() do
-    input = "select
-      foo_1, bar_2, col4
-      from some_table
+    input = "
+    select col1 from (
+      select col2, col3 from (
+        select col4, col5, col6 from some_table
+      )
+    )
     "
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
@@ -18,7 +21,7 @@ defmodule SqlParser do
       keyword(:select),
       columns(),
       keyword(:from),
-      token(identifier())
+      choice([token(identifier()), subquery()])
     ])
     |> map(fn [_, columns, _, from] ->
       %{
@@ -27,6 +30,22 @@ defmodule SqlParser do
         from: from
       }
     end)
+  end
+
+  defp subquery() do
+    sequence([
+      token(char(?()),
+      lazy(fn -> select_statement() end),
+      token(char(?)))
+    ])
+    |> map(fn [_, select_statement, _] -> select_statement end)
+  end
+
+  defp lazy(combinator) do
+    fn input ->
+      parser = combinator.()
+      parser.(input)
+    end
   end
 
   defp keyword(expected) do
