@@ -1,19 +1,27 @@
 defmodule SqlParser do
   def run() do
-    input = "
-        foo_1
-          bar_2
-    "
+    input = "foo_1, bar_2 col4"
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
 
   defp parse(input) do
-    parser = token(identifier()) |> many()
+    parser = columns()
     parser.(input)
   end
 
-  # sequence([ascii_letter(), char(?_), digit()])
+  defp columns(), do: separated_list(token(identifier()), token(char(?,)))
+
+  defp separated_list(element_parser, separator_parser) do
+    sequence([
+      element_parser,
+      many(sequence([separator_parser, element_parser]))
+    ])
+    |> map(fn [first_element, rest] ->
+      other_elements = Enum.map(rest, fn [_, element] -> element end)
+      [first_element | other_elements]
+    end)
+  end
 
   defp token(parser) do
     sequence([
