@@ -1,6 +1,6 @@
 defmodule SqlParser do
   def run() do
-    input = " foo_1 bar_2"
+    input = "foo_1 bar_2"
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
@@ -10,11 +10,18 @@ defmodule SqlParser do
     parser.(input)
   end
 
+  defp map(parser, mapper) do
+    fn input ->
+      with {:ok, term, rest} <- parser.(input) do
+        {:ok, mapper.(term), rest}
+      end
+    end
+  end
+
   defp identifier() do
-    satisfy(
-      many(identifier_char()),
-      fn chars -> chars != [] end
-    )
+    many(identifier_char())
+    |> satisfy(fn chars -> chars != [] end)
+    |> map(fn chars -> to_string(chars) end)
   end
 
   defp many(parser) do
