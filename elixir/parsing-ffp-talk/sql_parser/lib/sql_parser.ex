@@ -6,8 +6,24 @@ defmodule SqlParser do
   end
 
   defp parse(input) do
-    parser = char()
+    parser = char(?_)
     parser.(input)
+  end
+
+  defp digit(), do: satisfy(char(), fn char -> char in ?0..?9 end)
+  defp ascii_letter(), do: satisfy(char(), fn char -> char in ?A..?Z or char in ?a..?z end)
+  defp char(expected), do: satisfy(char(), fn char -> char == expected end)
+
+  defp satisfy(parser, acceptor) do
+    fn input ->
+      with {:ok, term, rest} <- parser.(input) do
+        if acceptor.(term) do
+          {:ok, term, rest}
+        else
+          {:error, "term rejected"}
+        end
+      end
+    end
   end
 
   defp char() do
