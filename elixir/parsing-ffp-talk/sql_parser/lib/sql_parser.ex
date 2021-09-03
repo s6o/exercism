@@ -1,14 +1,36 @@
 defmodule SqlParser do
   def run() do
-    input = "1_foo bar_2"
+    input = " foo_1 bar_2"
     IO.puts("input: #{inspect(input)}\n")
     parse(input)
   end
 
   defp parse(input) do
-    parser = choice([ascii_letter(), char(?_), digit()])
+    parser = identifier()
     parser.(input)
   end
+
+  defp identifier() do
+    satisfy(
+      many(identifier_char()),
+      fn chars -> chars != [] end
+    )
+  end
+
+  defp many(parser) do
+    fn input ->
+      case parser.(input) do
+        {:error, _reason} ->
+          {:ok, [], input}
+
+        {:ok, first_term, rest} ->
+          {:ok, other_terms, rest} = many(parser).(rest)
+          {:ok, [first_term | other_terms], rest}
+      end
+    end
+  end
+
+  defp identifier_char(), do: choice([ascii_letter(), char(?_), digit()])
 
   defp choice(parsers) do
     fn input ->
