@@ -55,6 +55,7 @@ defmodule SqlParser do
       String.upcase(identifier) == String.upcase(to_string(expected))
     end)
     |> map(fn _ -> expected end)
+    |> map_error(fn _error -> "expected token `#{expected}`" end)
   end
 
   defp columns(), do: separated_list(token(identifier()), token(char(?,)))
@@ -98,6 +99,14 @@ defmodule SqlParser do
     fn input ->
       with {:ok, term, rest} <- parser.(input) do
         {:ok, mapper.(term), rest}
+      end
+    end
+  end
+
+  defp map_error(parser, mapper) do
+    fn input ->
+      with {:error, error} <- parser.(input) do
+        {:error, mapper.(error)}
       end
     end
   end
