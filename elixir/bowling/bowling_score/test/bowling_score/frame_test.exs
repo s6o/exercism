@@ -3,10 +3,39 @@ defmodule BowlingScore.FrameTest do
 
   test "new frame" do
     assert BowlingScore.Frame.create() == %BowlingScore.Frame{
+             carries: [],
              pin_slots: {:free, :free},
-             score: 0,
              slot_result: :regular
            }
+  end
+
+  test "a new frame is an empty frame" do
+    assert BowlingScore.Frame.create() |> BowlingScore.Frame.is_empty?() == true
+    assert {:ok, BowlingScore.Frame.create()} |> BowlingScore.Frame.is_empty?() == true
+
+    assert BowlingScore.Frame.create()
+           |> BowlingScore.Frame.mark_pins(7)
+           |> BowlingScore.Frame.is_empty?() == false
+  end
+
+  test "a completed frame" do
+    assert BowlingScore.Frame.create()
+           |> BowlingScore.Frame.mark_pins(10)
+           |> BowlingScore.Frame.is_completed?() == true
+
+    assert BowlingScore.Frame.create()
+           |> BowlingScore.Frame.mark_pins(7)
+           |> BowlingScore.Frame.is_completed?() == false
+
+    assert BowlingScore.Frame.create()
+           |> BowlingScore.Frame.mark_pins(7)
+           |> BowlingScore.Frame.mark_pins(3)
+           |> BowlingScore.Frame.is_completed?() == true
+
+    assert BowlingScore.Frame.create()
+           |> BowlingScore.Frame.mark_pins(5)
+           |> BowlingScore.Frame.mark_pins(3)
+           |> BowlingScore.Frame.is_completed?() == true
   end
 
   test "valid strike scoring" do
@@ -15,8 +44,8 @@ defmodule BowlingScore.FrameTest do
     assert BowlingScore.Frame.mark_pins(frame, 10) ==
              {:ok,
               %BowlingScore.Frame{
+                carries: [],
                 pin_slots: {10, :free},
-                score: 10,
                 slot_result: :strike
               }}
   end
@@ -46,8 +75,8 @@ defmodule BowlingScore.FrameTest do
     assert BowlingScore.Frame.mark_pins(frame, 7) ==
              {:ok,
               %BowlingScore.Frame{
+                carries: [],
                 pin_slots: {7, :free},
-                score: 7,
                 slot_result: :regular
               }}
   end
@@ -60,16 +89,16 @@ defmodule BowlingScore.FrameTest do
     assert frame ==
              {:ok,
               %BowlingScore.Frame{
+                carries: [],
                 pin_slots: {7, :free},
-                score: 7,
                 slot_result: :regular
               }}
 
     assert BowlingScore.Frame.mark_pins(frame, 3) ==
              {:ok,
               %BowlingScore.Frame{
+                carries: [],
                 pin_slots: {7, 3},
-                score: 10,
                 slot_result: :spare
               }}
   end
@@ -80,7 +109,8 @@ defmodule BowlingScore.FrameTest do
       |> BowlingScore.Frame.mark_pins(7)
       |> BowlingScore.Frame.mark_pins(2)
 
-    assert frame == {:ok, %BowlingScore.Frame{pin_slots: {7, 2}, score: 9, slot_result: :regular}}
+    assert frame ==
+             {:ok, %BowlingScore.Frame{carries: [], pin_slots: {7, 2}, slot_result: :regular}}
   end
 
   test "invalid regular and spare scoring ends with error" do
@@ -107,5 +137,32 @@ defmodule BowlingScore.FrameTest do
 
     assert BowlingScore.Frame.mark_pins(spare_frame, 0) == {:error, :invalid_frame_or_pin_score}
     assert BowlingScore.Frame.mark_pins(spare_frame, 3) == {:error, :invalid_frame_or_pin_score}
+  end
+
+  test "strike frame scoring" do
+    {:ok, strike} = BowlingScore.Frame.create() |> BowlingScore.Frame.mark_pins(10)
+    first_of_two = %{strike | carries: [10]}
+    first_of_three = %{strike | carries: [10, 10]}
+
+    assert BowlingScore.Frame.score(strike) == 10
+    assert BowlingScore.Frame.score(first_of_two) == 20
+    assert BowlingScore.Frame.score(first_of_three) == 30
+  end
+
+  test "spare and regular frame scoring" do
+    {:ok, spare} =
+      BowlingScore.Frame.create()
+      |> BowlingScore.Frame.mark_pins(7)
+      |> BowlingScore.Frame.mark_pins(3)
+
+    regular =
+      BowlingScore.Frame.create()
+      |> BowlingScore.Frame.mark_pins(5)
+      |> BowlingScore.Frame.mark_pins(3)
+
+    spare_carry = %{spare | carries: [10]}
+
+    assert BowlingScore.Frame.score(spare) == 10
+    assert BowlingScore.Frame.score(regular) == 8
   end
 end
