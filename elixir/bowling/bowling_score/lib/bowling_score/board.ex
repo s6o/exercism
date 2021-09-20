@@ -220,4 +220,48 @@ defmodule BowlingScore.Board do
 
     {:ok, %{board | frames: updated_frames, score: board_score}}
   end
+
+  @doc """
+  Get current running score for each frame where the score for the last completed
+  frame is equal to BowlingScore.Board.score.
+
+  That is the result list may also include an emtpy frame as the last item in the
+  resulting list.
+
+  Also, when BowlingScore.Board.frames keeps the latest frame as list's head, then
+  the resulting list of running_score/1 is ordered from left to right where the
+  first frame of the board is the first element of the resulting list and the
+  (current) last frame of the board is the last element in the resulting list.
+  """
+  @spec running_score(board :: BowlingScore.Board.t()) ::
+          list({BowlingScore.Frame.t(), non_neg_integer()})
+  def running_score({:ok, %BowlingScore.Board{} = b}), do: running_score(b)
+
+  def running_score(%BowlingScore.Board{frames: frames}) do
+    frames
+    |> Enum.reverse()
+    |> Enum.reduce([], fn %BowlingScore.Frame{} = f, accum ->
+      case accum do
+        [] ->
+          [{f, if(BowlingScore.Frame.is_completed?(f), do: BowlingScore.Frame.score(f), else: 0)}]
+
+        [{_, s} = fs] ->
+          [
+            fs,
+            {f,
+             if(BowlingScore.Frame.is_completed?(f), do: s + BowlingScore.Frame.score(f), else: 0)}
+          ]
+
+        [{_, s} | _] ->
+          accum ++
+            [
+              {f,
+               if(BowlingScore.Frame.is_completed?(f),
+                 do: s + BowlingScore.Frame.score(f),
+                 else: 0
+               )}
+            ]
+      end
+    end)
+  end
 end

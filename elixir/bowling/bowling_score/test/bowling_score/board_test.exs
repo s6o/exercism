@@ -688,4 +688,87 @@ defmodule BowlingScore.BoardTest do
                 state: :completed
               }}
   end
+
+  test "running score of empty board" do
+    score =
+      BowlingScore.Board.create()
+      |> BowlingScore.Board.running_score()
+
+    assert score == [
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {:free, :free},
+                slot_result: :regular
+              }, 0}
+           ]
+  end
+
+  test "running score for 2 frame strike + regular" do
+    score =
+      BowlingScore.Board.create()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(3)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(6)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.running_score()
+
+    assert score == [
+             {%BowlingScore.Frame{
+                carries: [3, 6],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 19},
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {3, 6},
+                slot_result: :regular
+              }, 28},
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {:free, :free},
+                slot_result: :regular
+              }, 0}
+           ]
+  end
+
+  test "running score for 2 frame spare + regular" do
+    score =
+      BowlingScore.Board.create()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(7)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(3)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(4)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(2)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.running_score()
+
+    assert score == [
+             {%BowlingScore.Frame{
+                carries: [4],
+                pin_slots: {7, 3},
+                slot_result: :spare
+              }, 14},
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {4, 2},
+                slot_result: :regular
+              }, 20},
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {:free, :free},
+                slot_result: :regular
+              }, 0}
+           ]
+  end
 end
