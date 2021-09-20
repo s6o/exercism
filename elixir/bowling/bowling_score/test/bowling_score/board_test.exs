@@ -72,12 +72,12 @@ defmodule BowlingScore.BoardTest do
   test "a spare completed frame cannot be added to empty active frame" do
     board = BowlingScore.Board.create()
 
-    scored_frame =
+    {:ok, scored_frame} =
       BowlingScore.Frame.create()
       |> BowlingScore.Frame.mark_pins(7)
       |> BowlingScore.Frame.mark_pins(3)
 
-    scored_board = BowlingScore.Board.add_frame({scored_frame, board})
+    scored_board = BowlingScore.Board.add_frame({:ok, {scored_frame, board}})
 
     assert scored_board == {:error, :invalid_completed_frame_expecting_partial}
   end
@@ -85,12 +85,12 @@ defmodule BowlingScore.BoardTest do
   test "a regular completed frame cannot be added to empty active frame" do
     board = BowlingScore.Board.create()
 
-    scored_frame =
+    {:ok, scored_frame} =
       BowlingScore.Frame.create()
       |> BowlingScore.Frame.mark_pins(4)
       |> BowlingScore.Frame.mark_pins(3)
 
-    scored_board = BowlingScore.Board.add_frame({scored_frame, board})
+    scored_board = BowlingScore.Board.add_frame({:ok, {scored_frame, board}})
 
     assert scored_board == {:error, :invalid_completed_frame_expecting_partial}
   end

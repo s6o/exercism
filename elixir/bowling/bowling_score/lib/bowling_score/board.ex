@@ -19,23 +19,30 @@ defmodule BowlingScore.Board do
   end
 
   @spec active_frame(board :: {:ok, BowlingScore.Board.t()} | BowlingScore.Board.t()) ::
-          {BowlingScore.Frame.t(), BowlingScore.Board.t()}
+          {:ok, {BowlingScore.Frame.t(), BowlingScore.Board.t()}}
   def active_frame({:ok, %BowlingScore.Board{} = b}), do: active_frame(b)
-  def active_frame(%BowlingScore.Board{frames: [f]} = b), do: {f, b}
-  def active_frame(%BowlingScore.Board{frames: [f | _]} = b), do: {f, b}
+  def active_frame(%BowlingScore.Board{frames: [f]} = b), do: {:ok, {f, b}}
+  def active_frame(%BowlingScore.Board{frames: [f | _]} = b), do: {:ok, {f, b}}
 
+  @spec mark_frame(
+          {:ok, {BowlingScore.Frame.t(), BowlingScore.Board.t()}}
+          | {BowlingScore.Frame.t(), BowlingScore.Board.t()},
+          0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+        ) ::
+          {:ok, {BowlingScore.Frame.t(), BowlingScore.Board.t()}}
+          | {:error, :invalid_frame_or_pin_score}
   @doc """
   Update BowlingScore.Board.active_frame/1 result with pin count.
   """
-  @spec mark_frame(
-          {BowlingScore.Frame.t(), BowlingScore.Board.t()},
-          0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
-        ) ::
-          {{:error, :invalid_frame_or_pin_score} | {:ok, BowlingScore.Frame.t()},
-           BowlingScore.Board.t()}
+  def mark_frame({:ok, {%BowlingScore.Frame{}, %BowlingScore.Board{}} = af}, pins)
+      when is_integer(pins) and pins >= 0 and pins <= 10,
+      do: mark_frame(af, pins)
+
   def mark_frame({%BowlingScore.Frame{} = f, %BowlingScore.Board{} = board}, pins)
       when is_integer(pins) and pins >= 0 and pins <= 10 do
-    {BowlingScore.Frame.mark_pins(f, pins), board}
+    with {:ok, marked_frame} <- BowlingScore.Frame.mark_pins(f, pins) do
+      {:ok, {marked_frame, board}}
+    end
   end
 
   @doc """
@@ -57,10 +64,13 @@ defmodule BowlingScore.Board do
         |> BowlingScore.Board.mark_frame(2)
         |> BowlingScore.Board.add_frame()
   """
-  @spec add_frame(frame_board :: {BowlingScore.Frame.t(), BowlingScore.Board.t()}) ::
+  @spec add_frame(
+          frame_board ::
+            {:ok, {BowlingScore.Frame.t(), BowlingScore.Board.t()}}
+            | {BowlingScore.Frame.t(), BowlingScore.Board.t()}
+        ) ::
           {:ok, BowlingScore.Board.t()} | {:error, atom()}
-  def add_frame({{:ok, %BowlingScore.Frame{} = sf}, %BowlingScore.Board{} = b}),
-    do: add_frame({sf, b})
+  def add_frame({:ok, {%BowlingScore.Frame{}, %BowlingScore.Board{}} = mf}), do: add_frame(mf)
 
   def add_frame(
         {%BowlingScore.Frame{} = scored_frame, %BowlingScore.Board{frames: frames} = board}
@@ -158,7 +168,7 @@ defmodule BowlingScore.Board do
     end
   end
 
-  def add_frame({_, _}), do: {:error, :invalid_frame_or_board}
+  def add_frame(error), do: error
 
   defp update_board(%BowlingScore.Board{frames: frames} = board) do
     completed_frames = Enum.filter(frames, &BowlingScore.Frame.is_completed?/1)
