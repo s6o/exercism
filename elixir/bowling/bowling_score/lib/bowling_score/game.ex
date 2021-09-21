@@ -89,32 +89,15 @@ defmodule BowlingScore.Game do
         {:ok, _} = marked_frame <- BowlingScore.Board.mark_frame(active_frame, pins),
         {:ok, new_board} <- BowlingScore.Board.add_frame(marked_frame)
       ) do
-        next_pindex =
-          game.players
-          |> Map.keys()
-          |> Enum.sort()
-          |> (fn keys -> Enum.drop(keys, game.pindex) ++ Enum.take(keys, game.pindex) end).()
-          |> Enum.reduce_while(0, fn pi, _ ->
-            if Map.has_key?(game.players, pi) == true do
-              player = Map.get(game.players, pi)
-
-              if player.board.state != :completed do
-                {:halt, pi}
-              else
-                {:cont, 0}
-              end
-            else
-              {:cont, 0}
-            end
-          end)
-
         {:ok,
          Map.put(game.players, game.pindex, %{p | board: new_board})
          |> (fn m ->
+               next_game = %{game | players: m}
+               next_pindex = next_player(next_game)
+
                %{
-                 game
-                 | players: m,
-                   pindex: next_pindex,
+                 next_game
+                 | pindex: next_pindex,
                    state: if(next_pindex == 0, do: :completed, else: :in_progress)
                }
              end).()}
@@ -122,5 +105,25 @@ defmodule BowlingScore.Game do
     else
       {:error, :game_corrupted_player_index}
     end
+  end
+
+  defp next_player(%BowlingScore.Game{} = game) do
+    game.players
+    |> Map.keys()
+    |> Enum.sort()
+    |> (fn keys -> Enum.drop(keys, game.pindex) ++ Enum.take(keys, game.pindex) end).()
+    |> Enum.reduce_while(0, fn pi, _ ->
+      if Map.has_key?(game.players, pi) == true do
+        player = Map.get(game.players, pi)
+
+        if player.board.state != :completed do
+          {:halt, pi}
+        else
+          {:cont, 0}
+        end
+      else
+        {:cont, 0}
+      end
+    end)
   end
 end
