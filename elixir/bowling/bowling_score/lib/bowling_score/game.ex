@@ -93,7 +93,11 @@ defmodule BowlingScore.Game do
          Map.put(game.players, game.pindex, %{p | board: new_board})
          |> (fn m ->
                next_game = %{game | players: m}
-               next_pindex = next_player(next_game)
+               {:ok, {scored_frame, _}} = marked_frame
+               frame_completed = BowlingScore.Frame.is_completed?(scored_frame)
+
+               next_pindex =
+                 if(frame_completed == true, do: next_player(next_game), else: game.pindex)
 
                %{
                  next_game

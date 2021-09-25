@@ -226,6 +226,150 @@ defmodule BowlingScore.GameTest do
               }}
   end
 
+  test "two player, player switch" do
+    game =
+      BowlingScore.Game.create()
+      |> BowlingScore.Game.add_player("Alice")
+      |> BowlingScore.Game.add_player("Bob")
+      |> BowlingScore.Game.start()
+      |> BowlingScore.Game.mark_player_frame(10)
+
+    assert game ==
+             {:ok,
+              %BowlingScore.Game{
+                players: %{
+                  1 => %BowlingScore.Player{
+                    name: "Alice",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {:free, :free},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {10, :free},
+                          slot_result: :strike
+                        }
+                      ],
+                      score: 10,
+                      state: :in_progress
+                    }
+                  },
+                  2 => %BowlingScore.Player{
+                    name: "Bob",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {:free, :free},
+                          slot_result: :regular
+                        }
+                      ],
+                      score: 0,
+                      state: :in_progress
+                    }
+                  }
+                },
+                pindex: 2,
+                state: :in_progress
+              }}
+
+    game = game |> BowlingScore.Game.mark_player_frame(3)
+
+    assert game ==
+             {:ok,
+              %BowlingScore.Game{
+                players: %{
+                  1 => %BowlingScore.Player{
+                    name: "Alice",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {:free, :free},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {10, :free},
+                          slot_result: :strike
+                        }
+                      ],
+                      score: 10,
+                      state: :in_progress
+                    }
+                  },
+                  2 => %BowlingScore.Player{
+                    name: "Bob",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {3, :free},
+                          slot_result: :regular
+                        }
+                      ],
+                      score: 0,
+                      state: :in_progress
+                    }
+                  }
+                },
+                pindex: 2,
+                state: :in_progress
+              }}
+
+    game = game |> BowlingScore.Game.mark_player_frame(6)
+
+    assert game ==
+             {:ok,
+              %BowlingScore.Game{
+                players: %{
+                  1 => %BowlingScore.Player{
+                    name: "Alice",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {:free, :free},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {10, :free},
+                          slot_result: :strike
+                        }
+                      ],
+                      score: 10,
+                      state: :in_progress
+                    }
+                  },
+                  2 => %BowlingScore.Player{
+                    name: "Bob",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {:free, :free},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {3, 6},
+                          slot_result: :regular
+                        }
+                      ],
+                      score: 9,
+                      state: :in_progress
+                    }
+                  }
+                },
+                pindex: 1,
+                state: :in_progress
+              }}
+  end
+
   test "two player game, max scores!" do
     game =
       BowlingScore.Game.create()
