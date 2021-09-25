@@ -1,0 +1,51 @@
+### Execute HTTP calls via VSCode REST Client extension
+
+### Add terminal
+POST http://localhost:3001/terminals HTTP/1.1
+Content-Type: application/json
+
+{
+  "terminal_id": 1
+}
+
+
+### List terminals and their respective state
+GET http://localhost:3001/terminals HTTP/1.1
+Content-Type: application/json
+
+
+### Create a new game for specified terminal
+POST http://localhost:3001/games/1 HTTP/1.1
+Content-Type: application/json
+
+["Alice","Bob"]
+
+
+### Get state of a game on a terminal
+GET http://localhost:3001/games/1 HTTP/1.1
+Content-Type: application/json
+
+
+### Update game's pins down (Alice)
+PUT http://localhost:3001/games/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "pins_down": 10
+}
+
+### Update game's pins down (Bob 1)
+PUT http://localhost:3001/games/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "pins_down": 3
+}
+
+### Update game's pins down (Bob 2)
+PUT http://localhost:3001/games/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "pins_down": 6
+}

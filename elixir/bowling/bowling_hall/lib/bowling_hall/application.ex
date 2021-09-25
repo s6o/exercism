@@ -8,6 +8,8 @@ defmodule BowlingHall.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Start game server via its supervisor
+      {BowlingHall.GameSupervisor, %{}},
       # Use Plug.Cowboy.child_spec/3 to register our endpoint as a plug
       Plug.Cowboy.child_spec(
         scheme: :http,

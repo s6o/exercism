@@ -22,9 +22,10 @@ defmodule BowlingHall.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.5"},
+      {:bowling_score, path: "./../bowling_score"},
+      {:exsync, "~> 0.2.4"},
       {:jason, "~> 1.2"},
-      {:bowling_score, path: "./../bowling_score"}
+      {:plug_cowboy, "~> 2.5"}
     ]
   end
 end

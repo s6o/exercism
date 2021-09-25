@@ -16,8 +16,6 @@ and game logic.
 A minimal HTTP JSON API to allow bowling hall's terminals to display and drive
 games for players.
 
-TODO
-
 ## Bowling Terminal
 
 A TUI client with [ratatouille](https://github.com/ndreynolds/ratatouille) that
