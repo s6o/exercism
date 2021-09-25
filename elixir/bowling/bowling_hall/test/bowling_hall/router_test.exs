@@ -6,14 +6,16 @@ defmodule BowlingHall.RouterTest do
 
   test "it returns pong" do
     # Create a test connection
-    conn = conn(:get, "/ping")
+    conn =
+      conn(:post, "/terminals", ~S({"terminal_id": 1}))
+      |> put_req_header("content-type", "application/json")
 
     # Invoke the plug
     conn = BowlingHall.Router.call(conn, @opts)
 
     # Assert the response and status
     assert conn.state == :sent
-    assert conn.status == 200
-    assert conn.resp_body == "pong!"
+    assert conn.status == 204
+    assert conn.resp_body == ""
   end
 end
