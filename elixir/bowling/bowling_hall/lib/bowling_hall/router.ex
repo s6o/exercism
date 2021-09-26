@@ -28,17 +28,15 @@ defmodule BowlingHall.Router do
 
   # Try to register a new terminal with specified id.
   post "/terminals" do
-    %Plug.Conn{body_params: %{"terminal_id" => terminal_id}} = conn
+    new_terminal_id = BowlingHall.GameServer.register_terminal()
 
-    terminal_status =
-      case BowlingHall.GameServer.register_terminal(terminal_id) do
-        :ok -> 204
-        :conflict -> 409
-      end
+    result = %{
+      "terminal_id" => new_terminal_id
+    }
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(terminal_status, "")
+    |> send_resp(201, Jason.encode!(result))
   end
 
   # Get game state on specifed terminal

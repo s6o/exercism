@@ -12,9 +12,9 @@ defmodule BowlingHall.GameServer do
     GenServer.start_link(__MODULE__, default, name: __MODULE__)
   end
 
-  @spec register_terminal(pos_integer()) :: :ok | :conflict
-  def register_terminal(terminal_id) do
-    GenServer.call(BowlingHall.GameServer, {:register_terminal, terminal_id})
+  @spec register_terminal() :: pos_integer()
+  def register_terminal() do
+    GenServer.call(BowlingHall.GameServer, :register_terminal)
   end
 
   @spec list_terminals :: list(BowlingHall.TerminalState.t())
@@ -48,12 +48,14 @@ defmodule BowlingHall.GameServer do
   end
 
   @impl true
-  def handle_call({:register_terminal, terminal_id}, _from, games) do
-    if Map.has_key?(games, terminal_id) do
-      {:reply, :conflict, games}
-    else
-      {:reply, :ok, Map.put_new(games, terminal_id, %{})}
-    end
+  def handle_call(:register_terminal, _from, games) do
+    new_terminal_id =
+      games
+      |> Map.keys()
+      |> Enum.count()
+      |> (fn c -> c + 1 end).()
+
+    {:reply, new_terminal_id, Map.put_new(games, new_terminal_id, %{})}
   end
 
   @impl true

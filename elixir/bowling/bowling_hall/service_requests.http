@@ -4,10 +4,6 @@
 POST http://localhost:3001/terminals HTTP/1.1
 Content-Type: application/json
 
-{
-  "terminal_id": 1
-}
-
 
 ### List terminals and their respective state
 GET http://localhost:3001/terminals HTTP/1.1

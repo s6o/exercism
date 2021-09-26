@@ -29,16 +29,16 @@ For development the webserver is started at [localhost:3001](http://localhost:30
 
 ### POST /terminals
 
-Register a new Bowling Hall screen.
+Register a new Bowling Hall screen. On successful registration the assigned
+terminal id is returned.
+
+`HTTP 201 Created`
 
 ```json
 {
   "terminal_id": 1
 }
 ```
-
-On successful registration returns `HTTP 204 No Content`. If a terminal tries to
-join with an already reserved id `HTTP 409 Conflict` is returned.
 
 ### GET /terminals
 
