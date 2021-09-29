@@ -26,4 +26,5 @@ for:
 * driving the game by sending pin score for currenlty active `player` in the
   respective `game` visualized by the terminal.
 
-TODO
+![TUI image](https://github.com/s6o/exercism/blob/master/elixir/bowling/bowling_terminal.png?raw=true)
+
