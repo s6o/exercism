@@ -1,103 +1,61 @@
 defmodule BowlingTerminal.Views.PlayerBoard do
   import Ratatouille.View
+  import Ratatouille.Constants
 
-  def render(_) do
-    panel(title: "Alice") do
+  def render(%{"player" => player, "board_state" => _state, "frames" => frames}, is_active) do
+    frame_map =
+      frames
+      |> Enum.with_index()
+      |> Enum.map(fn {f, i} -> {i + 1, f} end)
+      |> Map.new()
+
+    render_frames =
+      1..12
+      |> Enum.map(fn frame_index ->
+        {frame_title, fs1, fs2, fs, sr} =
+          if Map.has_key?(frame_map, frame_index) do
+            %{"slot1" => slot1, "slot2" => slot2, "slot_result" => slot_result, "score" => score} =
+              Map.get(frame_map, frame_index)
+
+            {" #{frame_index} ",
+             if(is_nil(slot1), do: "_", else: if(slot1 < 10, do: to_string(slot1), else: "X")),
+             if(is_nil(slot2),
+               do: "_",
+               else: if(slot1 + slot2 < 10, do: to_string(slot2), else: "/")
+             ), if(is_nil(score), do: "__ ", else: to_string(score)), slot_result}
+          else
+            {" _ ", "_", "_", "__ ", "regular"}
+          end
+
+        column(size: 1) do
+          panel(
+            title: frame_title,
+            color: if(is_active and frame_title != " _ ", do: color(:blue), else: nil),
+            background: if(is_active and frame_title != " _ ", do: color(:white), else: nil)
+          ) do
+            label(content: " #{fs1}#{fs2}")
+            label(content: "   ")
+
+            label(
+              content: fs,
+              color:
+                if(sr == "strike",
+                  do: color(:green),
+                  else: if(sr == "spare", do: color(:yellow), else: nil)
+                )
+            )
+          end
+        end
+      end)
+
+    panel(
+      title: " #{player} ",
+      color: if(is_active, do: color(:blue), else: nil),
+      background: if(is_active, do: color(:white), else: nil)
+    ) do
       row do
-        column(size: 1) do
-          panel(title: " 1 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 2 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 3 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 4 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 5 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 6 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 7 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 8 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 9 ") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 10") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 11") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
-        end
-
-        column(size: 1) do
-          panel(title: " 12") do
-            label(content: " X ")
-            label(content: "   ")
-            label(content: "10 ")
-          end
+        for rf <- render_frames do
+          rf
         end
       end
     end

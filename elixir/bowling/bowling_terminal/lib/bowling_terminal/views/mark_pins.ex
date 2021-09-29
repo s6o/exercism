@@ -9,6 +9,7 @@ defmodule BowlingTerminal.Views.MarkPins do
           table do
             table_row do
               table_cell(content: "Mark pins:", attributes: [attribute(:bold)])
+              table_cell(content: "[ 0 ]")
               table_cell(content: "[ 1 ]")
               table_cell(content: "[ 2 ]")
               table_cell(content: "[ 3 ]")

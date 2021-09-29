@@ -22,4 +22,28 @@ defmodule BowlingTerminal.GameServer do
       end
     end
   end
+
+  def new_game(terminal_id, players) do
+    with {:ok, %Tesla.Env{} = response} <- post("/games/#{terminal_id}", players) do
+      if response.status == 201 do
+        {:ok, response.body}
+      end
+    end
+  end
+
+  def game_state(terminal_id) do
+    with {:ok, %Tesla.Env{} = response} <- get("/games/#{terminal_id}") do
+      if response.status == 200 do
+        {:ok, response.body}
+      end
+    end
+  end
+
+  def mark_pins(terminal_id, pins) do
+    with {:ok, %Tesla.Env{} = response} <- put("/games/#{terminal_id}", %{"pins_down" => pins}) do
+      if response.status == 200 do
+        {:ok, response.body}
+      end
+    end
+  end
 end
