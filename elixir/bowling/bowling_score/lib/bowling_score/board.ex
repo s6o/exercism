@@ -250,28 +250,18 @@ defmodule BowlingScore.Board do
   def running_score(%BowlingScore.Board{frames: frames}) do
     frames
     |> Enum.reverse()
-    |> Enum.reduce([], fn %BowlingScore.Frame{} = f, accum ->
-      case accum do
-        [] ->
-          [{f, if(BowlingScore.Frame.is_completed?(f), do: BowlingScore.Frame.score(f), else: 0)}]
+    |> Enum.with_index()
+    |> Enum.reduce({[], 0}, fn {%BowlingScore.Frame{} = f, fidx}, {fa, sum} ->
+      if fidx > 9 do
+        {fa ++ [{f, 0}], 0}
+      else
+        new_sum =
+          sum + if(BowlingScore.Frame.is_completed?(f), do: BowlingScore.Frame.score(f), else: 0)
 
-        [{_, s} = fs] ->
-          [
-            fs,
-            {f,
-             if(BowlingScore.Frame.is_completed?(f), do: s + BowlingScore.Frame.score(f), else: 0)}
-          ]
-
-        [{_, s} | _] ->
-          accum ++
-            [
-              {f,
-               if(BowlingScore.Frame.is_completed?(f),
-                 do: s + BowlingScore.Frame.score(f),
-                 else: 0
-               )}
-            ]
+        item = {f, new_sum}
+        {fa ++ [item], new_sum}
       end
     end)
+    |> (fn {fa, _} -> fa end).()
   end
 end

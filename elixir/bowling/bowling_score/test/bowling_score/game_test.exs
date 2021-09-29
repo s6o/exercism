@@ -129,6 +129,196 @@ defmodule BowlingScore.GameTest do
               }}
   end
 
+  test "single player game, no strikes" do
+    game =
+      BowlingScore.Game.create()
+      |> BowlingScore.Game.add_player("Alice")
+      |> BowlingScore.Game.start()
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+
+    assert game ==
+             {:ok,
+              %BowlingScore.Game{
+                players: %{
+                  1 => %BowlingScore.Player{
+                    name: "Alice",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        }
+                      ],
+                      score: 80,
+                      state: :completed
+                    }
+                  }
+                },
+                pindex: 0,
+                state: :completed
+              }}
+  end
+
+  test "single player game, for last sparce, no strikes" do
+    game =
+      BowlingScore.Game.create()
+      |> BowlingScore.Game.add_player("Alice")
+      |> BowlingScore.Game.start()
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(2)
+      |> BowlingScore.Game.mark_player_frame(8)
+      |> BowlingScore.Game.mark_player_frame(0)
+
+    assert game ==
+             {:ok,
+              %BowlingScore.Game{
+                players: %{
+                  1 => %BowlingScore.Player{
+                    name: "Alice",
+                    board: %BowlingScore.Board{
+                      frames: [
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [8],
+                          pin_slots: {8, 2},
+                          slot_result: :spare
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        },
+                        %BowlingScore.Frame{
+                          carries: [],
+                          pin_slots: {8, 0},
+                          slot_result: :regular
+                        }
+                      ],
+                      score: 90,
+                      state: :completed
+                    }
+                  }
+                },
+                pindex: 0,
+                state: :completed
+              }}
+  end
+
   test "single player game, max score!" do
     game =
       BowlingScore.Game.create()

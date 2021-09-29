@@ -732,7 +732,7 @@ defmodule BowlingScore.BoardTest do
                 carries: [],
                 pin_slots: {:free, :free},
                 slot_result: :regular
-              }, 0}
+              }, 28}
            ]
   end
 
@@ -768,6 +768,111 @@ defmodule BowlingScore.BoardTest do
                 carries: [],
                 pin_slots: {:free, :free},
                 slot_result: :regular
+              }, 20}
+           ]
+  end
+
+  test "running score, max score" do
+    score =
+      BowlingScore.Board.create()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(10)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.running_score()
+
+    assert score == [
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 30},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 60},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 90},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 120},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 150},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 180},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 210},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 240},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 270},
+             {%BowlingScore.Frame{
+                carries: [10, 10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 300},
+             {%BowlingScore.Frame{
+                carries: [10],
+                pin_slots: {10, :free},
+                slot_result: :strike
+              }, 0},
+             {%BowlingScore.Frame{
+                carries: [],
+                pin_slots: {10, :free},
+                slot_result: :strike
               }, 0}
            ]
   end
