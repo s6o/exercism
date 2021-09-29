@@ -56,7 +56,6 @@ List registered Bowling Screen id-s (terminals) with game state: vacant | occupi
     "terminal_id": 2,
     "state": "occupied"
   }
-]
 ```
 
 ### GET /games/:terminal_id
@@ -77,14 +76,19 @@ Otherwise, the current game state for specified terminal is returned. As an
 example the first initial game state for Alice and Bob where Alice the first
 active player to have roll/throw.
 
+Both of the state fields: game_state and board_state can have 2 of possible values:
+"in_progress" and "completed".
+
 `HTTP 200 OK`
 
 ```json
 {
-  "active_player": 1,
+  "active_player": 0,
+  "game_state": "in_progress",
   "board": [
     {
       "player": "Alice",
+      "board_state": "in_progress",
       "frames": [
         {
           "slot1": 10,
@@ -108,6 +112,7 @@ active player to have roll/throw.
     },
     {
       "player": "Bob",
+      "board_state": "in_progress",
       "frames": [
         {
           "slot1": 7,
@@ -140,9 +145,11 @@ Request a new game for specified terminal with a list of player names.
 ```json
 {
   "active_player": 0,
+  "game_state": "in_progress",
   "board": [
         {
           "player": "Alice",
+          "board_state": "in_progress",
           "frames": [
             {
               "slot1": null,
@@ -154,6 +161,7 @@ Request a new game for specified terminal with a list of player names.
         },
         {
           "player": "Bob",
+          "board_state": "in_progress",
           "frames": [
             {
               "slot1": null,
@@ -187,9 +195,11 @@ Notice that frames receive their final score after they have been completed.
 ```json
 {
   "active_player": 1,
+  "game_state": "in_progress",
   "board": [
     {
       "player": "Alice",
+      "board_state": "in_progress",
       "frames": [
         {
           "slot1": 10,
@@ -213,6 +223,7 @@ Notice that frames receive their final score after they have been completed.
     },
     {
       "player": "Bob",
+      "board_state": "in_progress",
       "frames": [
         {
           "slot1": 7,
