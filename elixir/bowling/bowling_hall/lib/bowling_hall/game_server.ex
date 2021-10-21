@@ -105,8 +105,12 @@ defmodule BowlingHall.GameServer do
     if Map.has_key?(games, terminal_id) do
       case Map.get(games, terminal_id) do
         %BowlingScore.Game{} = game ->
-          with {:ok, g} <- BowlingScore.Game.mark_player_frame(game, pins) do
-            {:reply, BowlingHall.TerminalGame.create(g), Map.put(games, terminal_id, g)}
+          case BowlingScore.Game.mark_player_frame(game, pins) do
+            {:ok, g} ->
+              {:reply, BowlingHall.TerminalGame.create(g), Map.put(games, terminal_id, g)}
+
+            e ->
+              {:reply, e, games}
           end
 
         _ ->

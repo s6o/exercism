@@ -11,6 +11,19 @@ defmodule BowlingScore.BoardTest do
            }
   end
 
+  test "score 8 in first frame and invalid 8" do
+    board =
+      BowlingScore.Board.create()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(8)
+      |> BowlingScore.Board.add_frame()
+      |> BowlingScore.Board.active_frame()
+      |> BowlingScore.Board.mark_frame(8)
+      |> BowlingScore.Board.add_frame()
+
+    assert board == {:error, :invalid_frame_or_pin_score}
+  end
+
   test "add scored frame" do
     board =
       BowlingScore.Board.create()

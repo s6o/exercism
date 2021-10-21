@@ -115,7 +115,7 @@ defmodule BowlingHall.Router do
       {:error, term} ->
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(500, Jason.encode!(to_string(term)))
+        |> send_resp(400, Jason.encode!(to_string(term)))
     end
   end
 
