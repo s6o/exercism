@@ -35,3 +35,40 @@ value for `PhDay0.EchoServer.init/1` should arise.
 There were no error messages, everything just hanged :-) - thanks, compiler!
 Now I know that it cannot detect accidental multiple retruns or warn about discarded
 expressions.
+
+## Deployment
+
+Prepare project:
+
+```zsh
+mix release.init
+```
+
+Configure [env.sh.eex](./rel/env.sh.eex) and [Dockerfile](./Dockerfile).
+
+A [Fly.io](https://fly.io) account is required. After which install the command line
+`flyctl` utility.
+
+```zsh
+brew install flyctl
+
+flyctl auth login
+flyctl launch
+```
+
+After modifications to `fly.toml`.
+
+```zsh
+flyctl deploy
+```
+
+Mark down the assigned IP.
+
+```zsh
+echo foobar | nc <fly-assigned-ip> 5001
+```
+
+## Verifying
+
+Goto [Problem 0](https://protohackers.com/problem/0) and enter the IP address and
+port assigned by Fly.io.
