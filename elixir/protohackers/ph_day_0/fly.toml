@@ -1,0 +1,31 @@
+# fly.toml app configuration file generated for protohackers-echo-server on 2023-06-08T13:20:19+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "protohackers-echo-server"
+kill_signal = "SIGTERM"
+primary_region = "ams"
+
+[[services]]
+http_checks = []
+internal_port = 5001
+processes = ["app"]
+protocol = "tcp"
+script_checks = []
+min_machines_running = 1
+
+[services.concurrency]
+hard_limit = 25
+soft_limit = 20
+type = "connections"
+
+[[services.ports]]
+handlers = []
+port = 5001
+
+[[services.tcp_checks]]
+grace_period = "1s"
+interval = "15s"
+restart_limit = 0
+timeout = "2s"
