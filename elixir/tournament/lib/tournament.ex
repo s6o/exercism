@@ -36,17 +36,19 @@ defmodule Tournament do
   listing the teams in alphabetical order.
   """
   @spec tally(input :: list(String.t())) :: String.t()
+  def tally([]), do: format_header() |> String.trim()
+
   def tally(input) do
     collect_results(input) |> format_results()
   end
 
   @spec collect_results(input :: list(String.t())) :: resultset()
-  def collect_results(input) do
+  defp collect_results(input) do
     input |> Enum.reduce(%{}, &record_match/2)
   end
 
   @spec format_results(resultset :: resultset()) :: String.t()
-  def format_results(resultset) do
+  defp format_results(resultset) do
     format_header() <>
       (resultset
        |> Map.values()
