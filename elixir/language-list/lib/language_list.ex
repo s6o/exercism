@@ -24,7 +24,7 @@ defmodule LanguageList do
     end
   end
 
-  def exciting_list?(list) do
+  def functional_list?(list) do
     case list do
       [] ->
         false
@@ -33,7 +33,7 @@ defmodule LanguageList do
         if String.downcase(item) == "elixir" do
           true
         else
-          exciting_list?(rest)
+          functional_list?(rest)
         end
     end
   end
