@@ -44,9 +44,37 @@ defmodule MarkdownTest do
   end
 
   # @tag :pending
+  test "with h3 header level" do
+    input = "### This will be an h3"
+    expected = "<h3>This will be an h3</h3>"
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "with h4 header level" do
+    input = "#### This will be an h4"
+    expected = "<h4>This will be an h4</h4>"
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "with h5 header level" do
+    input = "##### This will be an h5"
+    expected = "<h5>This will be an h5</h5>"
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
   test "with h6 header level" do
     input = "###### This will be an h6"
     expected = "<h6>This will be an h6</h6>"
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "h7 header level is a paragraph" do
+    input = "####### This will not be an h7"
+    expected = "<p>####### This will not be an h7</p>"
     assert Markdown.parse(input) == expected
   end
 
@@ -63,6 +91,38 @@ defmodule MarkdownTest do
 
     expected =
       "<h1>Header!</h1><ul><li><strong>Bold Item</strong></li><li><em>Italic Item</em></li></ul>"
+
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "with markdown symbols in the header text that should not be interpreted" do
+    input = "# This is a header with # and * in the text"
+    expected = "<h1>This is a header with # and * in the text</h1>"
+
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "with markdown symbols in the list item text that should not be interpreted" do
+    input = "* Item 1 with a # in the text\n* Item 2 with * in the text"
+    expected = "<ul><li>Item 1 with a # in the text</li><li>Item 2 with * in the text</li></ul>"
+
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "with markdown symbols in the paragraph text that should not be interpreted" do
+    input = "This is a paragraph with # and * in the text"
+    expected = "<p>This is a paragraph with # and * in the text</p>"
+
+    assert Markdown.parse(input) == expected
+  end
+
+  # @tag :pending
+  test "unordered lists close properly with preceding and following lines" do
+    input = "# Start a list\n* Item 1\n* Item 2\nEnd a list"
+    expected = "<h1>Start a list</h1><ul><li>Item 1</li><li>Item 2</li></ul><p>End a list</p>"
 
     assert Markdown.parse(input) == expected
   end

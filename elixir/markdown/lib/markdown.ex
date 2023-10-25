@@ -33,9 +33,14 @@ defmodule Markdown do
 
   defp process_header(token) do
     [hashes | words] = token |> String.split()
-    header_size = hashes |> String.length() |> Kernel.to_string()
-    title = words |> Enum.join(" ")
-    "<h" <> header_size <> ">" <> title <> "</h" <> header_size <> ">"
+    header_size = hashes |> String.length()
+
+    if header_size < 7 do
+      title = words |> Enum.join(" ")
+      "<h#{header_size}>" <> title <> "</h#{header_size}>"
+    else
+      "<p>#{token}</p>"
+    end
   end
 
   defp process_list_items(token) do
