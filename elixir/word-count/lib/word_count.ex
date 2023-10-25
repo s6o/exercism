@@ -7,9 +7,9 @@ defmodule WordCount do
   @spec count(String.t()) :: map
   def count(sentence) do
     sentence
-    |> String.split(~r{[^\w\-]|_}u, trim: true)
+    |> String.split(~r{[^\w\-']|_}u, trim: true)
     |> Enum.reduce(%{}, fn wd, accum ->
-      w = String.downcase(wd)
+      w = String.downcase(wd) |> String.trim_leading("'") |> String.trim_trailing("'")
 
       case accum do
         %{^w => count} -> %{accum | w => count + 1}
