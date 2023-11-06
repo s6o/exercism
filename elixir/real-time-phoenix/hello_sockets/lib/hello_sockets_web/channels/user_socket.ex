@@ -2,7 +2,7 @@ defmodule HelloSocketsWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel("ping:*", HelloSocketsWeb.PingChannel)
+  channel("ping", HelloSocketsWeb.PingChannel)
   channel("wild:*", HelloSocketsWeb.WildcardChannel)
 
   ## Transports

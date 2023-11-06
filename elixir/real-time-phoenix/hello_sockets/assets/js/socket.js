@@ -54,7 +54,7 @@ let socket = new Socket('/socket', { params: { token: window.userToken } });
 socket.connect();
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel('ping:*', {});
+let channel = socket.channel('ping', {});
 channel
   .join()
   .receive('ok', (resp) => {
