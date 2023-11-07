@@ -30,6 +30,10 @@
       </main>
 
     </div> <!-- /container -->
+    <script>
+      window.authToken = "<%= assigns[:auth_token] %>"
+      window.userId = "<%= assigns[:user_id] %>"
+    </script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

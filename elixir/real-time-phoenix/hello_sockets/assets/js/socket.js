@@ -7,6 +7,10 @@ import { Socket } from 'phoenix';
 
 let socket = new Socket('/socket', { params: { token: window.userToken } });
 
+let authSocket = new Socket('/auth_socket', {
+  params: { token: window.authToken },
+});
+
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.
@@ -52,6 +56,9 @@ let socket = new Socket('/socket', { params: { token: window.userToken } });
 // from connect if you don't care about authentication.
 
 socket.connect();
+
+authSocket.onOpen(() => console.log('authSocket connected.'));
+authSocket.connect();
 
 // Now that you are connected, you can join channels with a topic:
 let channel = socket.channel('ping', {});
