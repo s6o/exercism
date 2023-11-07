@@ -5,6 +5,7 @@ defmodule HelloSocketsWeb.AuthSocket do
   ## Channels
   channel("ping", HelloSocketsWeb.PingChannel)
   channel("tracked", HelloSocketsWeb.TrackedChannel)
+  channel("user:*", HelloSocketsWeb.AuthChannel)
 
   ## Transports
   transport(:websocket, Phoenix.Transports.WebSocket)
@@ -31,6 +32,7 @@ defmodule HelloSocketsWeb.AuthSocket do
     "auth:#{user_id}"
   end
 
+  @one_day 86400
   defp verify(socket, token) do
     Phoenix.Token.verify(socket, "salt identifier", token, max_age: @one_day)
   end
