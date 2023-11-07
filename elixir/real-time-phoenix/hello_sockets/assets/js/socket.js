@@ -64,4 +64,19 @@ channel
     console.log('Unable to join', resp);
   });
 
+channel.on('send_ping', (payload) => {
+  console.log('ping requested', payload);
+  channel.push('ping').receive('ok', (resp) => console.log('ping:', resp.ping));
+});
+
+console.log('send ping');
+channel.push('ping').receive('ok', (resp) => console.log('receive', resp.ping));
+
+channel
+  .push('param_ping', { error: true })
+  .receive('error', (resp) => console.error('param_ping error:', resp));
+channel
+  .push('param_ping', { error: false, arr: [1, 2] })
+  .receive('ok', (resp) => console.log('param_ping ok:', resp));
+
 export default socket;
