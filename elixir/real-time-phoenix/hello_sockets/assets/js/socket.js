@@ -60,6 +60,18 @@ socket.connect();
 authSocket.onOpen(() => console.log('authSocket connected.'));
 authSocket.connect();
 
+const recurringChannel = authSocket.channel('recurring');
+recurringChannel.on('new_token', (payload) => {
+  console.log('received new auth token', payload);
+});
+recurringChannel.join();
+
+const dupeChannel = socket.channel('dupe');
+dupeChannel.on('number', (payload) => {
+  console.log('new number received', payload);
+});
+dupeChannel.join();
+
 // Now that you are connected, you can join channels with a topic:
 let channel = socket.channel('ping', {});
 channel

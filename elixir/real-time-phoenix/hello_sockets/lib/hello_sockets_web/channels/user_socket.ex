@@ -4,6 +4,7 @@ defmodule HelloSocketsWeb.UserSocket do
   ## Channels
   channel("ping", HelloSocketsWeb.PingChannel)
   channel("wild:*", HelloSocketsWeb.WildcardChannel)
+  channel("dupe", HelloSocketsWeb.DedupeChannel)
 
   ## Transports
   transport(:websocket, Phoenix.Transports.WebSocket)

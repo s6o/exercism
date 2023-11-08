@@ -1,11 +1,18 @@
 defmodule HelloSocketsWeb.WildcardChannel do
   use Phoenix.Channel
+  require Logger
 
   def join("wild:" <> numbers, _payload, socket) do
-    if numbers_correct?(numbers) do
-      {:ok, socket}
-    else
-      {:error, %{}}
+    try do
+      if numbers_correct?(numbers) do
+        {:ok, socket}
+      else
+        {:error, %{}}
+      end
+    rescue
+      e ->
+        Logger.error("[error] an exception was raised")
+        {:error, %{exception: e}}
     end
   end
 
