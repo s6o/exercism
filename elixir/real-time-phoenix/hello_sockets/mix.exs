@@ -39,7 +39,8 @@ defmodule HelloSockets.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:cowboy, "~> 1.1.2"},
-      {:gettext, "~> 0.15.0"}
+      {:gettext, "~> 0.15.0"},
+      {:gen_stage, "0.14.3"}
     ]
   end
 end
