@@ -11,6 +11,8 @@ let authSocket = new Socket('/auth_socket', {
   params: { token: window.authToken },
 });
 
+let statsSocket = new Socket('/stats_socket', {});
+
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.
@@ -60,11 +62,23 @@ socket.connect();
 authSocket.onOpen(() => console.log('authSocket connected.'));
 authSocket.connect();
 
+statsSocket.connect();
+
 const recurringChannel = authSocket.channel('recurring');
 recurringChannel.on('new_token', (payload) => {
   console.log('received new auth token', payload);
 });
 recurringChannel.join();
+
+const statsChannelInvalid = statsSocket.channel('invalid');
+statsChannelInvalid.join().receive('error', () => statsChannelInvalid.leave());
+
+const statsChannelValid = statsSocket.channel('valid');
+statsChannelValid.join();
+
+for (let i = 0; i < 5; i++) {
+  statsChannelValid.push('ping', {});
+}
 
 const dupeChannel = socket.channel('dupe');
 dupeChannel.on('number', (payload) => {
