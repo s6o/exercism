@@ -80,6 +80,12 @@ for (let i = 0; i < 5; i++) {
   statsChannelValid.push('ping', {});
 }
 
+for (let i = 0; i < 5; i++) {
+  statsChannelValid
+    .push('parallel_slow_ping', {})
+    .receive('ok', () => console.log('Parallel slow ping response', i));
+}
+
 const dupeChannel = socket.channel('dupe');
 dupeChannel.on('number', (payload) => {
   console.log('new number received', payload);
