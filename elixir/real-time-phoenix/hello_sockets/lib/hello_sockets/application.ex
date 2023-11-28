@@ -1,6 +1,7 @@
 defmodule HelloSockets.Application do
   use Application
-  alias HelloSockets.Pipeline.{Consumer, Producer}
+  alias HelloSockets.Pipeline.Producer
+  alias HelloSockets.Pipeline.ConsumerSupervisor, as: Consumer
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications

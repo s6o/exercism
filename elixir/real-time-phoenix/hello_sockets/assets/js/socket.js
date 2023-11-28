@@ -70,6 +70,16 @@ recurringChannel.on('new_token', (payload) => {
 });
 recurringChannel.join();
 
+const authUserChannel = authSocket.channel(`user:${window.userId}`);
+authUserChannel.on('push', (payload) => {
+  console.log('received auth user push', payload);
+});
+authUserChannel.join();
+
+authUserChannel.on('push_timed', (payload) => {
+  console.log('received timed auth user push', payload);
+});
+
 const statsChannelInvalid = statsSocket.channel('invalid');
 statsChannelInvalid.join().receive('error', () => statsChannelInvalid.leave());
 
