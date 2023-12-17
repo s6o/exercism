@@ -21,6 +21,12 @@ defmodule Sneakers23Web.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/api/v1", Sneakers23Web do
+    pipe_through :api
+
+    get "/products", ProductController, :products
+  end
+
   scope "/", Sneakers23Web do
     pipe_through :browser
 

@@ -16,4 +16,9 @@ defmodule Sneakers23Web.ProductController do
     |> assign(:products, products)
     |> render("index.html")
   end
+
+  def products(conn, _params) do
+    {:ok, products} = Sneakers23.Inventory.get_complete_products()
+    json(conn, products)
+  end
 end

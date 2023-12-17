@@ -10,6 +10,7 @@ defmodule Sneakers23.Inventory.Product do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, except: [:__meta__, :__struct__]}
   schema "products" do
     field :brand, :string
     field :color, :string
