@@ -31,6 +31,8 @@ defmodule Sneakers23Web.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+  plug Corsica, origins: ["http://localhost:8888"]
+
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
