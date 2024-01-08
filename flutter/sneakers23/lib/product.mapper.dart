@@ -13,6 +13,7 @@ class ProductMapper extends ClassMapperBase<Product> {
   static ProductMapper ensureInitialized() {
     if (_instance == null) {
       MapperContainer.globals.use(_instance = ProductMapper._());
+      ProductItemMapper.ensureInitialized();
     }
     return _instance!;
   }
@@ -29,6 +30,9 @@ class ProductMapper extends ClassMapperBase<Product> {
   static DateTime _$insertedAt(Product v) => v.insertedAt;
   static const Field<Product, DateTime> _f$insertedAt =
       Field('insertedAt', _$insertedAt, key: 'inserted_at');
+  static List<ProductItem> _$items(Product v) => v.items;
+  static const Field<Product, List<ProductItem>> _f$items =
+      Field('items', _$items);
   static String _$mainImageUrl(Product v) => v.mainImageUrl;
   static const Field<Product, String> _f$mainImageUrl =
       Field('mainImageUrl', _$mainImageUrl, key: 'main_image_url');
@@ -53,6 +57,7 @@ class ProductMapper extends ClassMapperBase<Product> {
     #color: _f$color,
     #id: _f$id,
     #insertedAt: _f$insertedAt,
+    #items: _f$items,
     #mainImageUrl: _f$mainImageUrl,
     #name: _f$name,
     #order: _f$order,
@@ -70,6 +75,7 @@ class ProductMapper extends ClassMapperBase<Product> {
         data.dec(_f$color),
         data.dec(_f$id),
         data.dec(_f$insertedAt),
+        data.dec(_f$items),
         data.dec(_f$mainImageUrl),
         data.dec(_f$name),
         data.dec(_f$order),
@@ -130,11 +136,14 @@ extension ProductValueCopy<$R, $Out> on ObjectCopyWith<$R, Product, $Out> {
 
 abstract class ProductCopyWith<$R, $In extends Product, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
+  ListCopyWith<$R, ProductItem,
+      ProductItemCopyWith<$R, ProductItem, ProductItem>> get items;
   $R call(
       {String? brand,
       String? color,
       int? id,
       DateTime? insertedAt,
+      List<ProductItem>? items,
       String? mainImageUrl,
       String? name,
       int? order,
@@ -154,11 +163,17 @@ class _ProductCopyWithImpl<$R, $Out>
   late final ClassMapperBase<Product> $mapper =
       ProductMapper.ensureInitialized();
   @override
+  ListCopyWith<$R, ProductItem,
+          ProductItemCopyWith<$R, ProductItem, ProductItem>>
+      get items => ListCopyWith(
+          $value.items, (v, t) => v.copyWith.$chain(t), (v) => call(items: v));
+  @override
   $R call(
           {String? brand,
           String? color,
           int? id,
           DateTime? insertedAt,
+          List<ProductItem>? items,
           String? mainImageUrl,
           String? name,
           int? order,
@@ -171,6 +186,7 @@ class _ProductCopyWithImpl<$R, $Out>
         if (color != null) #color: color,
         if (id != null) #id: id,
         if (insertedAt != null) #insertedAt: insertedAt,
+        if (items != null) #items: items,
         if (mainImageUrl != null) #mainImageUrl: mainImageUrl,
         if (name != null) #name: name,
         if (order != null) #order: order,
@@ -185,6 +201,7 @@ class _ProductCopyWithImpl<$R, $Out>
       data.get(#color, or: $value.color),
       data.get(#id, or: $value.id),
       data.get(#insertedAt, or: $value.insertedAt),
+      data.get(#items, or: $value.items),
       data.get(#mainImageUrl, or: $value.mainImageUrl),
       data.get(#name, or: $value.name),
       data.get(#order, or: $value.order),

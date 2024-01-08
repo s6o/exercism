@@ -1,4 +1,5 @@
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:sneakers23/product_item.dart';
 
 part 'product.mapper.dart';
 
@@ -8,6 +9,7 @@ class Product with ProductMappable {
   String color;
   int id;
   DateTime insertedAt;
+  List<ProductItem> items;
   String mainImageUrl;
   String name;
   int order;
@@ -21,6 +23,7 @@ class Product with ProductMappable {
     this.color,
     this.id,
     this.insertedAt,
+    this.items,
     this.mainImageUrl,
     this.name,
     this.order,
