@@ -74,6 +74,9 @@ class CompoundInterest {
   /// Aggregated growth milestones for every compound period.
   late final List<int> aggregates;
 
+  /// Total amount of deposits over the growth period (including the principle).
+  late final Currency totalDeposits;
+
   CompoundInterest({
     required this.principal,
     required this.deposit,
@@ -105,14 +108,17 @@ class CompoundInterest {
           rate: ratePercentage / 100
         )
     };
+    int depositUnits = principal.units;
     aggregates = [principal.units];
     for (int index = 1; index < gen.count + 1; index++) {
       int interest = ((aggregates[index - 1] * gen.rate)).truncate();
+      depositUnits = depositUnits + deposit.units;
       aggregates.insert(
         index,
         aggregates[index - 1] + interest + deposit.units,
       );
     }
+    totalDeposits = Currency.units(depositUnits, principal);
   }
 
   List<String> get amounts =>

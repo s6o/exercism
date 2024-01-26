@@ -12,6 +12,7 @@ void main() {
     );
     expect(ci.aggregates, [0, 0]);
     expect(ci.amounts, ['0.00', '0.00']);
+    expect(ci.totalDeposits.units, 0);
   });
 
   test('With 1€ principle, no contrib, 5 years, annually', () {
@@ -27,6 +28,7 @@ void main() {
       [1000000, 1050000, 1102500, 1157625, 1215506, 1276281],
     );
     expect(ci.amounts, ['1.00', '1.05', '1.10', '1.16', '1.22', '1.28']);
+    expect(ci.totalDeposits.amount, '1.00');
   });
 
   test('With 1€ principle, with contrib 1€, 1 year, montly', () {
@@ -37,6 +39,7 @@ void main() {
       ratePercentage: 5,
       growthYears: 1,
     );
+    expect(ci.totalDeposits.amount, '13.00');
     expect(ci.aggregates, [
       1000000,
       2004166,
