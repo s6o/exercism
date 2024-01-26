@@ -69,7 +69,7 @@ class CompoundInterest {
   final int growthYears;
 
   /// Yearly interest rate.
-  final int ratePercentage;
+  final double ratePercentage;
 
   /// Aggregated growth milestones for every compound period.
   late final List<int> aggregates;
