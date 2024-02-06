@@ -1,0 +1,39 @@
+### This file is meant to be used from VSCode via the REST Client extension
+### https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+### Create a new todo
+POST http://localhost:8080/todos HTTP/1.1
+content-type: application/json
+
+{
+  "title": "Get milk"
+}
+
+### Create a new todo
+POST http://localhost:8080/todos HTTP/1.1
+content-type: application/json
+
+{
+  "title": "And don't forget cookies"
+}
+
+
+### Read all todos
+GET http://localhost:8080/todos HTTP/1.1
+
+
+### Read a specific todo by id, copy <id> from above results
+GET http://localhost:8080/todos/<id> HTTP/1.1
+
+
+### Update a specific todo by id, copy <id> from above results
+PUT http://localhost:8080/todos/<id> HTTP/1.1
+content-type: application/json
+
+{
+  "isCompleted": true
+}
+
+
+### Delete a specific todo by id, copy <id> from above results
+DELETE http://localhost:8080/todos/<id> HTTP/1.1
