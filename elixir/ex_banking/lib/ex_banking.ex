@@ -1,8 +1,9 @@
 defmodule ExBanking do
   @moduledoc false
-  @type bank_state :: %{required(String.t()) => ExBanking.Account.t()}
+  @type bank_state :: %{accounts: atom() | :ets.tid()}
   use GenServer
 
+  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_arg) do
     GenServer.start_link(__MODULE__, nil, name: ExBanking)
   end
@@ -141,108 +142,123 @@ defmodule ExBanking do
   ### Impl-s ###################################################################
 
   @impl true
-  @spec init(any) :: {:ok, bank_state()}
+  @spec init(any) :: {:ok, %{accounts: atom | :ets.tid()}}
   def init(_arg) do
-    initial_state = %{}
+    table = :ets.new(:user_accounts, [:set, :protected, :named_table])
+    initial_state = %{accounts: table}
     {:ok, initial_state}
   end
 
   @impl true
   def handle_call({:create_user, user}, _from, state) do
-    if Map.has_key?(state, user) do
-      {:reply, {:error, :user_already_exists}, state}
-    else
-      with {:ok, data} <- ExBanking.Data.create(user),
-           {:ok, cmd} <- ExBanking.Command.create(data, :assign),
-           {:ok, account} <- ExBanking.Account.create(cmd) do
-        {:reply, :ok, Map.put(state, user, account)}
-      else
-        {:error, :wrong_arguments} = e ->
-          {:reply, e, state}
-      end
+    case :ets.lookup(state.accounts, user) do
+      [] ->
+        with {:ok, data} <- ExBanking.Data.create(user),
+             {:ok, cmd} <- ExBanking.Command.create(data, :assign),
+             {:ok, account} <- ExBanking.Account.create(cmd) do
+          :ets.insert(state.accounts, {user, account})
+          {:reply, :ok, state}
+        else
+          {:error, :wrong_arguments} = e ->
+            {:reply, e, state}
+        end
+
+      [{_user, _}] ->
+        {:reply, {:error, :user_already_exists}, state}
     end
   end
 
   @impl true
   def handle_call({:balance, {user, currency}}, _from, state) do
-    if not Map.has_key?(state, user) do
-      {:reply, {:error, :user_does_not_exist}, state}
-    else
-      with {:ok, data} <- ExBanking.Data.create(user, currency),
-           {:ok, cmd} <- ExBanking.Command.create(data, :balance),
-           {:ok, account} <- ExBanking.Account.update(cmd, Map.get(state, user)) do
-        {:reply, {:ok, Float.round(Map.get(account.balances, currency, 0.0) * 1.0, 2)},
-         Map.put(state, user, account)}
-      else
-        {:error, :wrong_arguments} = e ->
-          {:reply, e, state}
-      end
+    case :ets.lookup(state.accounts, user) do
+      [] ->
+        {:reply, {:error, :user_does_not_exist}, state}
+
+      [{_user, account}] ->
+        with {:ok, data} <- ExBanking.Data.create(user, currency),
+             {:ok, cmd} <- ExBanking.Command.create(data, :balance),
+             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+          :ets.insert(state.accounts, {user, updated})
+          {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
+        else
+          {:error, :wrong_arguments} = e ->
+            {:reply, e, state}
+        end
     end
   end
 
   @impl true
   def handle_call({:deposit, {user, amount, currency}}, _from, state) do
-    if not Map.has_key?(state, user) do
-      {:reply, {:error, :user_does_not_exist}, state}
-    else
-      with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
-           {:ok, cmd} <- ExBanking.Command.create(data, :deposit),
-           {:ok, account} <- ExBanking.Account.update(cmd, Map.get(state, user)) do
-        {:reply, {:ok, Float.round(account.balances[currency] * 1.0, 2)},
-         Map.put(state, user, account)}
-      else
-        {:error, :wrong_arguments} = e ->
-          {:reply, e, state}
-      end
+    case :ets.lookup(state.accounts, user) do
+      [] ->
+        {:reply, {:error, :user_does_not_exist}, state}
+
+      [{_user, account}] ->
+        with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
+             {:ok, cmd} <- ExBanking.Command.create(data, :deposit),
+             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+          :ets.insert(state.accounts, {user, updated})
+          {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
+        else
+          {:error, :wrong_arguments} = e ->
+            {:reply, e, state}
+        end
     end
   end
 
   @impl true
   def handle_call({:withdraw, {user, amount, currency}}, _from, state) do
-    if not Map.has_key?(state, user) do
-      {:reply, {:error, :user_does_not_exist}, state}
-    else
-      with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
-           {:ok, cmd} <- ExBanking.Command.create(data, :withdraw),
-           {:ok, account} <- ExBanking.Account.update(cmd, Map.get(state, user)) do
-        {:reply, {:ok, Float.round(account.balances[currency] * 1.0, 2)},
-         Map.put(state, user, account)}
-      else
-        {:error, :wrong_arguments} = e ->
-          {:reply, e, state}
+    case :ets.lookup(state.accounts, user) do
+      [] ->
+        {:reply, {:error, :user_does_not_exist}, state}
 
-        {:not_enough_money, account} ->
-          {:reply, {:error, :not_enough_money}, Map.put(state, user, account)}
-      end
-    end
-  end
-
-  @impl true
-  def handle_call({:send, {from_user, to_user, amount, currency}}, _from, state) do
-    if not Map.has_key?(state, from_user) do
-      {:reply, {:error, :sender_does_not_exist}, state}
-    else
-      if not Map.has_key?(state, to_user) do
-        {:reply, {:error, :receiver_does_not_exist}, state}
-      else
-        with {:ok, from_data} <- ExBanking.Data.create(from_user, currency, amount),
-             {:ok, from_cmd} <- ExBanking.Command.create(from_data, :withdraw),
-             {:ok, from_account} <- ExBanking.Account.update(from_cmd, Map.get(state, from_user)),
-             {:ok, to_data} <- ExBanking.Data.create(to_user, currency, amount),
-             {:ok, to_cmd} <- ExBanking.Command.create(to_data, :deposit),
-             {:ok, to_account} <- ExBanking.Account.update(to_cmd, Map.get(state, to_user)) do
-          {:reply,
-           {:ok, Float.round(Map.get(from_account.balances, currency, 0.0) * 1.0, 2),
-            Float.round(Map.get(to_account.balances, currency, 0.0) * 1.0, 2)},
-           Map.put(state, from_user, from_account) |> Map.put(to_user, to_account)}
+      [{_user, account}] ->
+        with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
+             {:ok, cmd} <- ExBanking.Command.create(data, :withdraw),
+             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+          :ets.insert(state.accounts, {user, updated})
+          {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
         else
           {:error, :wrong_arguments} = e ->
             {:reply, e, state}
 
           {:not_enough_money, account} ->
-            {:reply, {:error, :not_enough_money}, Map.put(state, account.user, account)}
+            :ets.insert(state.accounts, {user, account})
+            {:reply, {:error, :not_enough_money}, state}
         end
-      end
+    end
+  end
+
+  @impl true
+  def handle_call({:send, {from_user, to_user, amount, currency}}, _from, state) do
+    case {:ets.lookup(state.accounts, from_user), :ets.lookup(state.accounts, to_user)} do
+      {[], _} ->
+        {:reply, {:error, :sender_does_not_exist}, state}
+
+      {_, []} ->
+        {:reply, {:error, :receiver_does_not_exist}, state}
+
+      {[{_sender, from_account}], [{_receiver, to_account}]} ->
+        with {:ok, from_data} <- ExBanking.Data.create(from_user, currency, amount),
+             {:ok, from_cmd} <- ExBanking.Command.create(from_data, :withdraw),
+             {:ok, from_updated} <- ExBanking.Account.update(from_cmd, from_account),
+             {:ok, to_data} <- ExBanking.Data.create(to_user, currency, amount),
+             {:ok, to_cmd} <- ExBanking.Command.create(to_data, :deposit),
+             {:ok, to_updated} <- ExBanking.Account.update(to_cmd, to_account) do
+          :ets.insert(state.accounts, {from_user, from_updated})
+          :ets.insert(state.accounts, {to_user, to_updated})
+
+          {:reply,
+           {:ok, Float.round(Map.get(from_updated.balances, currency, 0.0) * 1.0, 2),
+            Float.round(Map.get(to_updated.balances, currency, 0.0) * 1.0, 2)}, state}
+        else
+          {:error, :wrong_arguments} = e ->
+            {:reply, e, state}
+
+          {:not_enough_money, account} ->
+            :ets.insert(state.accounts, {account.user, account})
+            {:reply, {:error, :not_enough_money}, state}
+        end
     end
   end
 end
