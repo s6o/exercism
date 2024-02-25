@@ -49,7 +49,8 @@ defmodule ExBanking do
           {:ok, new_balance :: number}
           | {:error, :wrong_arguments | :user_does_not_exist | :too_many_requests_to_user}
   def deposit(user, amount, currency)
-      when is_binary(user) and user != "" and is_number(amount) and is_binary(currency) and
+      when is_binary(user) and user != "" and is_number(amount) and amount > 0 and
+             is_binary(currency) and
              currency != "" do
     GenServer.call(ExBanking, {:deposit, {user, amount, currency}})
   end
@@ -76,7 +77,8 @@ defmodule ExBanking do
              | :not_enough_money
              | :too_many_requests_to_user}
   def withdraw(user, amount, currency)
-      when is_binary(user) and user != "" and is_number(amount) and is_binary(currency) and
+      when is_binary(user) and user != "" and is_number(amount) and amount > 0 and
+             is_binary(currency) and
              currency != "" do
     GenServer.call(ExBanking, {:withdraw, {user, amount, currency}})
   end
@@ -153,9 +155,7 @@ defmodule ExBanking do
   def handle_call({:create_user, user}, _from, state) do
     case :ets.lookup(state.accounts, user) do
       [] ->
-        with {:ok, data} <- ExBanking.Data.create(user),
-             {:ok, cmd} <- ExBanking.Command.create(data, :assign),
-             {:ok, account} <- ExBanking.Account.create(cmd) do
+        with {:ok, account} <- ExBanking.Transaction.create_user(user) do
           :ets.insert(state.accounts, {user, account})
           {:reply, :ok, state}
         else
@@ -175,9 +175,7 @@ defmodule ExBanking do
         {:reply, {:error, :user_does_not_exist}, state}
 
       [{_user, account}] ->
-        with {:ok, data} <- ExBanking.Data.create(user, currency),
-             {:ok, cmd} <- ExBanking.Command.create(data, :balance),
-             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+        with {:ok, updated} <- ExBanking.Transaction.request_balance(account, currency) do
           :ets.insert(state.accounts, {user, updated})
           {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
         else
@@ -194,9 +192,7 @@ defmodule ExBanking do
         {:reply, {:error, :user_does_not_exist}, state}
 
       [{_user, account}] ->
-        with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
-             {:ok, cmd} <- ExBanking.Command.create(data, :deposit),
-             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+        with {:ok, updated} <- ExBanking.Transaction.new_deposit(account, currency, amount) do
           :ets.insert(state.accounts, {user, updated})
           {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
         else
@@ -213,9 +209,7 @@ defmodule ExBanking do
         {:reply, {:error, :user_does_not_exist}, state}
 
       [{_user, account}] ->
-        with {:ok, data} <- ExBanking.Data.create(user, currency, amount),
-             {:ok, cmd} <- ExBanking.Command.create(data, :withdraw),
-             {:ok, updated} <- ExBanking.Account.update(cmd, account) do
+        with {:ok, updated} <- ExBanking.Transaction.new_withdraw(account, currency, amount) do
           :ets.insert(state.accounts, {user, updated})
           {:reply, {:ok, Float.round(Map.get(updated.balances, currency, 0.0) * 1.0, 2)}, state}
         else
@@ -239,12 +233,8 @@ defmodule ExBanking do
         {:reply, {:error, :receiver_does_not_exist}, state}
 
       {[{_sender, from_account}], [{_receiver, to_account}]} ->
-        with {:ok, from_data} <- ExBanking.Data.create(from_user, currency, amount),
-             {:ok, from_cmd} <- ExBanking.Command.create(from_data, :withdraw),
-             {:ok, from_updated} <- ExBanking.Account.update(from_cmd, from_account),
-             {:ok, to_data} <- ExBanking.Data.create(to_user, currency, amount),
-             {:ok, to_cmd} <- ExBanking.Command.create(to_data, :deposit),
-             {:ok, to_updated} <- ExBanking.Account.update(to_cmd, to_account) do
+        with {:ok, from_updated, to_updated} <-
+               ExBanking.Transaction.send(from_account, to_account, currency, amount) do
           :ets.insert(state.accounts, {from_user, from_updated})
           :ets.insert(state.accounts, {to_user, to_updated})
 
