@@ -5,13 +5,11 @@ defmodule ExBanking.Command do
   @type command :: :assign | :balance | :deposit | :withdraw
   @type t :: %__MODULE__{
           :command => command(),
-          :data => ExBanking.Data.t(),
-          :ts => pos_integer()
+          :data => ExBanking.Data.t()
         }
   defstruct [
     :command,
-    :data,
-    :ts
+    :data
   ]
 
   @doc """
@@ -23,8 +21,7 @@ defmodule ExBanking.Command do
     {:ok,
      %ExBanking.Command{
        command: :assign,
-       data: %ExBanking.Data{amount: nil, currency: nil, user: "John"},
-       ts: 1708716185
+       data: %ExBanking.Data{amount: nil, currency: nil, user: "John", ts: 1708716185}
      }}
 
     iex> ExBanking.Data.create("john") |> ExBanking.Command.create(:balance)
@@ -34,16 +31,14 @@ defmodule ExBanking.Command do
     {:ok,
      %ExBanking.Command{
        command: :balance,
-       data: %ExBanking.Data{amount: nil, currency: "EUR", user: "john"},
-       ts: 1708704017
+       data: %ExBanking.Data{amount: nil, currency: "EUR", user: "john", ts: 1708704017}
      }}
 
     iex> ExBanking.Data.create("john", "EUR", 100) |> ExBanking.Command.create(:deposit)
     {:ok,
      %ExBanking.Command{
        command: :deposit,
-       data: %ExBanking.Data{amount: 100, currency: "EUR", user: "john"},
-       ts: 1708704219
+       data: %ExBanking.Data{amount: 100, currency: "EUR", user: "john", ts: 1708704219}
      }}
 
     iex> ExBanking.Data.create("john", "EUR") |> ExBanking.Command.create(:deposit)
@@ -79,7 +74,6 @@ defmodule ExBanking.Command do
         _ ->
           {:ok,
            %__MODULE__{
-             ts: DateTime.utc_now() |> DateTime.to_unix(),
              command: command,
              data: data
            }}

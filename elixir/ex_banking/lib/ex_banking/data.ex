@@ -5,12 +5,14 @@ defmodule ExBanking.Data do
   @type t :: %__MODULE__{
           :amount => nil | number(),
           :currency => nil | String.t(),
-          :user => String.t()
+          :user => String.t(),
+          :ts => pos_integer()
         }
   defstruct [
     :amount,
     :currency,
-    :user
+    :user,
+    :ts
   ]
 
   @doc """
@@ -19,13 +21,13 @@ defmodule ExBanking.Data do
   ## Examples
 
     iex> ExBanking.Data.create("john")
-    {:ok, %ExBanking.Data{amount: nil, currency: nil, user: "john"}}
+    {:ok, %ExBanking.Data{amount: nil, currency: nil, user: "john", ts: <nanoseconds>}}
 
     iex> ExBanking.Data.create("john", "EUR")
-    {:ok, %ExBanking.Data{amount: nil, currency: "EUR", user: "john"}}
+    {:ok, %ExBanking.Data{amount: nil, currency: "EUR", user: "john", ts: <nanoseconds>}}
 
     iex> ExBanking.Data.create("john", "EUR", 1.23)
-    {:ok, %ExBanking.Data{amount: 1.23, currency: "EUR", user: "john"}}
+    {:ok, %ExBanking.Data{amount: 1.23, currency: "EUR", user: "john", ts: <nanoseconds>}}
 
     iex> ExBanking.Data.create("")
     {:error, :wrong_arguments}
@@ -69,7 +71,8 @@ defmodule ExBanking.Data do
      %__MODULE__{
        amount: amount,
        currency: currency,
-       user: user
+       user: user,
+       ts: DateTime.utc_now() |> DateTime.to_unix(:nanosecond)
      }}
   end
 end

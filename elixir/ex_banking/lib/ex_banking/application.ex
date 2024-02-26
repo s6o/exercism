@@ -3,8 +3,11 @@ defmodule ExBanking.Application do
 
   use Application
 
+  @spec start(any, any) :: {:error, any} | {:ok, pid}
   def start(_type, _args) do
     children = [
+      {Task.Supervisor, name: BankTasks},
+      {ExBanking.RateLimiter, 10},
       {ExBanking, nil}
     ]
 

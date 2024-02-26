@@ -96,4 +96,43 @@ defmodule ExBanking.AccountTest do
         assert event.event == :overdrawn
     end
   end
+
+  test "account merge deposits" do
+    {:ok, init_account} =
+      ExBanking.Data.create("adam")
+      |> ExBanking.Command.create(:assign)
+      |> ExBanking.Account.create()
+
+    {:ok, process_1} =
+      ExBanking.Data.create("adam", "eur", 25)
+      |> ExBanking.Command.create(:deposit)
+      |> ExBanking.Account.update(init_account)
+
+    {:ok, process_2} =
+      ExBanking.Data.create("adam", "eur", 75)
+      |> ExBanking.Command.create(:deposit)
+      |> ExBanking.Account.update(init_account)
+
+    merged =
+      init_account
+      |> ExBanking.Account.merge_into_from(process_1)
+      |> ExBanking.Account.merge_into_from(process_2)
+
+    assert Map.get(merged.balances, "eur") == 100
+
+    assert Map.equal?(
+             Map.from_struct(Enum.at(merged.events, 0)),
+             Map.from_struct(Enum.at(process_2.events, 0))
+           )
+
+    assert Map.equal?(
+             Map.from_struct(Enum.at(merged.events, 1)),
+             Map.from_struct(Enum.at(process_1.events, 0))
+           )
+
+    assert Map.equal?(
+             Map.from_struct(Enum.at(merged.events, 2)),
+             Map.from_struct(Enum.at(init_account.events, 0))
+           )
+  end
 end

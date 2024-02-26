@@ -8,12 +8,10 @@ defmodule ExBanking.Event do
           | :withdrawn
   @type t :: %__MODULE__{
           :data => ExBanking.Data.t(),
-          :event => event(),
-          :ts => pos_integer()
+          :event => event()
         }
   defstruct [
     :data,
-    :event,
-    :ts
+    :event
   ]
 end

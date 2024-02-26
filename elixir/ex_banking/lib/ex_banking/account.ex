@@ -27,7 +27,6 @@ defmodule ExBanking.Account do
        balances: %{},
        events: [
          %ExBanking.Event{
-           ts: DateTime.utc_now() |> DateTime.to_unix(),
            event: :account_created,
            data: command.data
          }
@@ -89,7 +88,6 @@ defmodule ExBanking.Account do
       end
 
     new_event = %ExBanking.Event{
-      ts: DateTime.utc_now() |> DateTime.to_unix(),
       event: event,
       data: data
     }
@@ -100,4 +98,44 @@ defmodule ExBanking.Account do
   def update(_, _), do: {:error, :wrong_arguments}
 
   defp deposit_identity(a, _b), do: a
+
+  @doc """
+  Merge an `ExBanking.Account`'s latest `ExBanking.Event` into another `ExBanking.Account`.
+  """
+  @spec merge_into_from(into :: ExBanking.Account.t(), from :: ExBanking.Account.t()) ::
+          ExBanking.Account.t()
+  def merge_into_from(%ExBanking.Account{} = into, %ExBanking.Account{} = from) do
+    [latest_event | _] = from.events
+
+    balance_f =
+      case latest_event.event do
+        :deposited ->
+          &+/2
+
+        :withdrawn ->
+          &-/2
+
+        _ ->
+          &deposit_identity/2
+      end
+
+    new_balances =
+      if Map.has_key?(into.balances, latest_event.data.currency) do
+        last_balance = Map.get(into.balances, latest_event.data.currency)
+
+        Map.put(
+          into.balances,
+          latest_event.data.currency,
+          balance_f.(last_balance, latest_event.data.amount)
+        )
+      else
+        if is_number(latest_event.data.amount) do
+          Map.put(into.balances, latest_event.data.currency, latest_event.data.amount)
+        else
+          into.balances
+        end
+      end
+
+    %{into | balances: new_balances, events: [latest_event | into.events]}
+  end
 end
