@@ -4,12 +4,16 @@ defmodule ExBanking.Command do
   """
   @type command :: :assign | :balance | :deposit | :withdraw
   @type t :: %__MODULE__{
-          :command => command(),
-          :data => ExBanking.Data.t()
+          :currency => nil | ExBanking.Currency.t(),
+          :name => command(),
+          :user => String.t(),
+          :ts => pos_integer()
         }
   defstruct [
-    :command,
-    :data
+    :currency,
+    :name,
+    :user,
+    :ts
   ]
 
   @doc """
@@ -17,41 +21,59 @@ defmodule ExBanking.Command do
 
   ## Examples
 
-    iex> ExBanking.Data.create("John") |> ExBanking.Command.create(:assign)
+    iex> ExBanking.Input.create("John") |> ExBanking.Command.create(:assign)
     {:ok,
-     %ExBanking.Command{
-       command: :assign,
-       data: %ExBanking.Data{amount: nil, currency: nil, user: "John", ts: 1708716185}
-     }}
+    %ExBanking.Command{
+       currency: nil,
+       name: :assign,
+       ts: 1709048627045560000,
+       user: "John"
+    }}
 
-    iex> ExBanking.Data.create("john") |> ExBanking.Command.create(:balance)
+    iex> ExBanking.Input.create("john") |> ExBanking.Command.create(:balance)
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("john", "EUR") |> ExBanking.Command.create(:balance)
+    iex> ExBanking.Input.create("john", "EUR") |> ExBanking.Command.create(:balance)
     {:ok,
-     %ExBanking.Command{
-       command: :balance,
-       data: %ExBanking.Data{amount: nil, currency: "EUR", user: "john", ts: 1708704017}
-     }}
+    %ExBanking.Command{
+       currency: %ExBanking.Currency{
+         code: "EUR",
+         fractions: 10000,
+         subunits: 100,
+         symbol: "€",
+         units: 0
+       },
+       name: :balance,
+       ts: 1709052703928625000,
+       user: "john"
+    }}
 
-    iex> ExBanking.Data.create("john", "EUR", 100) |> ExBanking.Command.create(:deposit)
+    iex> ExBanking.Input.create("john", "EUR", 100) |> ExBanking.Command.create(:deposit)
     {:ok,
-     %ExBanking.Command{
-       command: :deposit,
-       data: %ExBanking.Data{amount: 100, currency: "EUR", user: "john", ts: 1708704219}
-     }}
+    %ExBanking.Command{
+     currency: %ExBanking.Currency{
+       code: "EUR",
+       fractions: 10000,
+       subunits: 100,
+       symbol: "€",
+       units: 100000000
+     },
+     name: :deposit,
+     ts: 1709052751283265000,
+     user: "john"
+    }}
 
-    iex> ExBanking.Data.create("john", "EUR") |> ExBanking.Command.create(:deposit)
+    iex> ExBanking.Input.create("john", "EUR") |> ExBanking.Command.create(:deposit)
     {:error, :wrong_arguments}
   """
-  @spec create({:ok, ExBanking.Data.t()} | ExBanking.Data.t(), command()) ::
+  @spec create({:ok, ExBanking.Input.t()} | ExBanking.Input.t(), command()) ::
           {:ok, %__MODULE__{}} | {:error, :wrong_arguments}
-  def create({:ok, %ExBanking.Data{} = data}, command), do: _create(data, command)
-  def create(%ExBanking.Data{} = data, command), do: _create(data, command)
+  def create({:ok, %ExBanking.Input{} = data}, command), do: _create(data, command)
+  def create(%ExBanking.Input{} = data, command), do: _create(data, command)
   def create(_, _), do: {:error, :wrong_arguments}
 
-  defp _create(%ExBanking.Data{user: user, currency: currency, amount: amount} = data, command) do
-    if is_binary(user) and user != "" do
+  defp _create(%ExBanking.Input{user: user, currency: currency, amount: amount} = data, command) do
+    if is_binary(user) and user != "" and is_integer(data.ts) and data.ts > 0 do
       case command do
         :assign
         when not is_nil(currency) or not is_nil(amount) ->
@@ -72,10 +94,29 @@ defmodule ExBanking.Command do
           {:error, :wrong_arguments}
 
         _ ->
+          currency =
+            if command == :assign do
+              nil
+            else
+              case String.downcase(currency) do
+                "eur" ->
+                  ExBanking.Currency.euro(if(is_number(amount), do: amount, else: 0.0))
+
+                "usd" ->
+                  ExBanking.Currency.usd(if(is_number(amount), do: amount, else: 0.0))
+
+                _ ->
+                  ExBanking.Currency.new(currency, if(is_number(amount), do: amount, else: 0.0))
+              end
+              |> (fn {:ok, c} -> %{c | code: currency} end).()
+            end
+
           {:ok,
            %__MODULE__{
-             command: command,
-             data: data
+             currency: currency,
+             name: command,
+             user: user,
+             ts: data.ts
            }}
       end
     else

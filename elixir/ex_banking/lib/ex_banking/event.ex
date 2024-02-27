@@ -7,11 +7,15 @@ defmodule ExBanking.Event do
           | :unknown_command
           | :withdrawn
   @type t :: %__MODULE__{
-          :data => ExBanking.Data.t(),
-          :event => event()
+          :currency => nil | ExBanking.Currency.t(),
+          :name => event(),
+          :ts => pos_integer(),
+          :user => String.t()
         }
   defstruct [
-    :data,
-    :event
+    :currency,
+    :name,
+    :ts,
+    :user
   ]
 end

@@ -2,9 +2,9 @@ defmodule ExBanking.Transaction do
   @doc """
   Create an `ExBanking.Account` for specified user.
   """
-  @spec create_user(data :: ExBanking.Data.t()) ::
+  @spec create_user(data :: ExBanking.Input.t()) ::
           {:ok, ExBanking.Account.t()} | {:error, :wrong_arguments}
-  def create_user(%ExBanking.Data{user: user} = data) when is_binary(user) and user != "" do
+  def create_user(%ExBanking.Input{user: user} = data) when is_binary(user) and user != "" do
     with {:ok, cmd} <- ExBanking.Command.create(data, :assign),
          {:ok, account} <- ExBanking.Account.create(cmd) do
       {:ok, account}
@@ -16,11 +16,11 @@ defmodule ExBanking.Transaction do
   @doc """
   Add a new non-zero deposit amount in specified currency to specified `ExBanking.Account`.
   """
-  @spec new_deposit(account :: ExBanking.Account.t(), data :: ExBanking.Data.t()) ::
+  @spec new_deposit(account :: ExBanking.Account.t(), data :: ExBanking.Input.t()) ::
           {:error, :wrong_arguments} | {:ok, ExBanking.Account.t()}
   def new_deposit(
         %ExBanking.Account{user: user} = account,
-        %ExBanking.Data{user: user, currency: currency, amount: amount} = data
+        %ExBanking.Input{user: user, currency: currency, amount: amount} = data
       )
       when is_binary(user) and user != "" and is_binary(currency) and currency != "" and
              is_number(amount) and amount > 0 do
@@ -35,13 +35,13 @@ defmodule ExBanking.Transaction do
   @doc """
   Add a new non-zero withdraw amount in specified currency to specified `ExBanking.Account`.
   """
-  @spec new_withdraw(account :: ExBanking.Account.t(), data :: ExBanking.Data.t()) ::
+  @spec new_withdraw(account :: ExBanking.Account.t(), data :: ExBanking.Input.t()) ::
           {:error, :wrong_arguments}
           | {:not_enough_money, ExBanking.Account.t()}
           | {:ok, ExBanking.Account.t()}
   def new_withdraw(
         %ExBanking.Account{user: user} = account,
-        %ExBanking.Data{
+        %ExBanking.Input{
           user: user,
           currency: currency,
           amount: amount
@@ -60,11 +60,11 @@ defmodule ExBanking.Transaction do
   @doc """
   Add `balanced_checked` event to specified `ExBanking.Account`'s event log.
   """
-  @spec request_balance(account :: ExBanking.Account.t(), data :: ExBanking.Data.t()) ::
+  @spec request_balance(account :: ExBanking.Account.t(), data :: ExBanking.Input.t()) ::
           {:error, :wrong_arguments} | {:ok, ExBanking.Account.t()}
   def request_balance(
         %ExBanking.Account{user: user} = account,
-        %ExBanking.Data{currency: currency} = data
+        %ExBanking.Input{currency: currency} = data
       )
       when is_binary(user) and user != "" and is_binary(currency) and currency != "" do
     with {:ok, cmd} <- ExBanking.Command.create(data, :balance),
@@ -81,7 +81,7 @@ defmodule ExBanking.Transaction do
   @spec send(
           from_account :: ExBanking.Account.t(),
           to_account :: ExBanking.Account.t(),
-          data :: ExBanking.Data.t()
+          data :: ExBanking.Input.t()
         ) ::
           {:error, :wrong_arguments}
           | {:not_enough_money, ExBanking.Account.t()}
@@ -89,7 +89,7 @@ defmodule ExBanking.Transaction do
   def send(
         %ExBanking.Account{user: from_user} = from_account,
         %ExBanking.Account{user: to_user} = to_account,
-        %ExBanking.Data{currency: currency, amount: amount} = data
+        %ExBanking.Input{currency: currency, amount: amount} = data
       )
       when is_binary(from_user) and from_user != "" and is_binary(to_user) and to_user != "" and
              is_binary(currency) and currency != "" and is_number(amount) and amount > 0 do

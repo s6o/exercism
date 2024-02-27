@@ -30,7 +30,7 @@ defmodule ExBanking do
   """
   @spec create_user(user :: String.t()) :: :ok | {:error, :wrong_arguments | :user_already_exists}
   def create_user(user) when is_binary(user) and user != "" do
-    with {:ok, data} <- ExBanking.Data.create(user) do
+    with {:ok, data} <- ExBanking.Input.create(user) do
       GenServer.call(ExBanking, {:create_user, data})
     end
   end
@@ -57,7 +57,7 @@ defmodule ExBanking do
              is_binary(currency) and
              currency != "" do
     with {:ok, _count} <- ExBanking.RateLimiter.register_request(user),
-         {:ok, data} <- ExBanking.Data.create(user, currency, amount) do
+         {:ok, data} <- ExBanking.Input.create(user, currency, amount) do
       GenServer.call(ExBanking, {:deposit, data})
     else
       {:error, :wrong_arguments} = e -> e
@@ -83,7 +83,7 @@ defmodule ExBanking do
              is_binary(currency) and
              currency != "" do
     with {:ok, _count} <- ExBanking.RateLimiter.register_request(user),
-         {:ok, data} <- ExBanking.Data.create(user, currency, amount) do
+         {:ok, data} <- ExBanking.Input.create(user, currency, amount) do
       GenServer.call(ExBanking, {:withdraw, data})
     else
       {:error, :wrong_arguments} = e -> e
@@ -107,7 +107,7 @@ defmodule ExBanking do
   def get_balance(user, currency)
       when is_binary(user) and user != "" and is_binary(currency) and currency != "" do
     with {:ok, _count} <- ExBanking.RateLimiter.register_request(user),
-         {:ok, data} <- ExBanking.Data.create(user, currency) do
+         {:ok, data} <- ExBanking.Input.create(user, currency) do
       GenServer.call(ExBanking, {:balance, data})
     else
       {:error, :wrong_arguments} = e -> e
@@ -141,7 +141,7 @@ defmodule ExBanking do
              is_number(amount) and is_binary(currency) and currency != "" do
     with {:ok, _from_count} <- ExBanking.RateLimiter.register_request(from_user),
          {:ok, _to_count} <- ExBanking.RateLimiter.register_request(to_user),
-         {:ok, data} <- ExBanking.Data.create(from_user, currency, amount) do
+         {:ok, data} <- ExBanking.Input.create(from_user, currency, amount) do
       GenServer.call(ExBanking, {:send, {from_user, to_user, data}})
     else
       {:error, :wrong_arguments} = e -> e
@@ -163,7 +163,7 @@ defmodule ExBanking do
   end
 
   @impl true
-  def handle_call({:create_user, %ExBanking.Data{user: user} = data}, _from, state) do
+  def handle_call({:create_user, %ExBanking.Input{user: user} = data}, _from, state) do
     case :ets.lookup(state.accounts, user) do
       [] ->
         with {:ok, account} <- ExBanking.Transaction.create_user(data) do
@@ -180,7 +180,11 @@ defmodule ExBanking do
   end
 
   @impl true
-  def handle_call({:balance, %ExBanking.Data{user: user, currency: currency} = data}, from, state) do
+  def handle_call(
+        {:balance, %ExBanking.Input{user: user, currency: currency} = data},
+        from,
+        state
+      ) do
     state_pid = self()
 
     Task.Supervisor.start_child(BankTasks, fn ->
@@ -204,7 +208,11 @@ defmodule ExBanking do
   end
 
   @impl true
-  def handle_call({:deposit, %ExBanking.Data{user: user, currency: currency} = data}, from, state) do
+  def handle_call(
+        {:deposit, %ExBanking.Input{user: user, currency: currency} = data},
+        from,
+        state
+      ) do
     state_pid = self()
 
     Task.Supervisor.start_child(BankTasks, fn ->
@@ -229,7 +237,7 @@ defmodule ExBanking do
 
   @impl true
   def handle_call(
-        {:withdraw, %ExBanking.Data{user: user, currency: currency} = data},
+        {:withdraw, %ExBanking.Input{user: user, currency: currency} = data},
         from,
         state
       ) do
@@ -257,7 +265,7 @@ defmodule ExBanking do
 
   @impl true
   def handle_call(
-        {:send, {from_user, to_user, %ExBanking.Data{currency: currency} = data}},
+        {:send, {from_user, to_user, %ExBanking.Input{currency: currency} = data}},
         from,
         state
       ) do
@@ -313,13 +321,14 @@ defmodule ExBanking do
 
           [{_user, into}] ->
             merged = ExBanking.Account.merge_into_from(into, account)
-            #            IO.inspect(merged, label: "event log #{DateTime.utc_now()}\n")
             :ets.insert(state.accounts, {account.user, merged})
 
-            GenServer.reply(
-              from,
-              {:ok, Float.round(Map.get(merged.balances, currency, 0.0) * 1.0, 2)}
-            )
+            with {:ok, v} <- ExBanking.Currency.to_float(Map.get(merged.balances, currency)) do
+              GenServer.reply(from, {:ok, v})
+            else
+              _ ->
+                GenServer.reply(from, {:ok, 0.0})
+            end
         end
 
       {:ok, from_account, to_account} ->
@@ -341,11 +350,16 @@ defmodule ExBanking do
             :ets.insert(state.accounts, {to_account.user, merged})
         end
 
-        GenServer.reply(
-          from,
-          {:ok, Float.round(Map.get(from_account.balances, currency, 0.0) * 1.0, 2),
-           Float.round(Map.get(to_account.balances, currency, 0.0) * 1.0, 2)}
-        )
+        from_currency = Map.get(from_account.balances, currency)
+        to_currency = Map.get(to_account.balances, currency)
+
+        with {:ok, from_v} <- ExBanking.Currency.to_float(from_currency),
+             {:ok, to_v} <- ExBanking.Currency.to_float(to_currency) do
+          GenServer.reply(from, {:ok, from_v, to_v})
+        else
+          _ ->
+            GenServer.reply(from, {:ok, 0.0, 0.0})
+        end
     end
 
     {:noreply, state}

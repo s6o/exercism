@@ -4,7 +4,7 @@ defmodule ExBanking.Account do
   and a log (list) of `Event`s applied over time aka account state.
   """
   @type t :: %__MODULE__{
-          :balances => %{required(String.t()) => number()},
+          :balances => %{required(String.t()) => ExBanking.Currency.t()},
           :events => [ExBanking.Event.t()],
           :user => String.t()
         }
@@ -19,19 +19,21 @@ defmodule ExBanking.Account do
   Initialize a new `Account` from `:assign` command.
   """
   @spec create(ExBanking.Command.t()) :: {:ok, ExBanking.Account.t()} | {:error, :wrong_arguments}
-  def create({:ok, %ExBanking.Command{command: :assign} = command}), do: create(command)
+  def create({:ok, %ExBanking.Command{name: :assign} = command}), do: create(command)
 
-  def create(%ExBanking.Command{command: :assign} = command) do
+  def create(%ExBanking.Command{name: :assign} = command) do
     {:ok,
      %__MODULE__{
        balances: %{},
        events: [
          %ExBanking.Event{
-           event: :account_created,
-           data: command.data
+           currency: command.currency,
+           name: :account_created,
+           user: command.user,
+           ts: command.ts
          }
        ],
-       user: command.data.user
+       user: command.user
      }}
   end
 
@@ -51,22 +53,25 @@ defmodule ExBanking.Account do
     do: update(command, account)
 
   def update(
-        %ExBanking.Command{command: command, data: %ExBanking.Data{} = data},
+        %ExBanking.Command{} = command,
         %ExBanking.Account{balances: balances, events: [%ExBanking.Event{} | _] = events} =
           account
       ) do
     {status, event, balance_f} =
-      case command do
+      case command.name do
         :balance ->
           {:ok, :balance_checked, &deposit_identity/2}
 
         :deposit ->
-          {:ok, :deposited, &+/2}
+          {:ok, :deposited, &ExBanking.Currency.add/2}
 
         :withdraw ->
-          if Map.has_key?(balances, data.currency) and
-               Map.get(balances, data.currency) >= data.amount do
-            {:ok, :withdrawn, &-/2}
+          if Map.has_key?(balances, command.currency.code) and
+               ExBanking.Currency.is_equal_or_greater!(
+                 Map.get(balances, command.currency.code),
+                 command.currency
+               ) do
+            {:ok, :withdrawn, &ExBanking.Currency.subtract/2}
           else
             {:not_enough_money, :overdrawn, &deposit_identity/2}
           end
@@ -76,20 +81,24 @@ defmodule ExBanking.Account do
       end
 
     new_balances =
-      if Map.has_key?(balances, data.currency) do
-        last_balance = Map.get(balances, data.currency)
-        Map.put(balances, data.currency, balance_f.(last_balance, data.amount))
+      if status == :ok and not is_nil(command.currency) and
+           Map.has_key?(balances, command.currency.code) do
+        last_balance = Map.get(balances, command.currency.code)
+        updated_balance = balance_f.(last_balance, command.currency) |> (fn {:ok, b} -> b end).()
+        Map.put(balances, command.currency.code, updated_balance)
       else
-        if is_number(data.amount) do
-          Map.put(balances, data.currency, data.amount)
+        if not is_nil(command.currency) and command.name == :deposit do
+          Map.put(balances, command.currency.code, command.currency)
         else
           balances
         end
       end
 
     new_event = %ExBanking.Event{
-      event: event,
-      data: data
+      currency: command.currency,
+      name: event,
+      user: command.user,
+      ts: command.ts
     }
 
     {status, %{account | balances: new_balances, events: [new_event | events]}}
@@ -97,7 +106,15 @@ defmodule ExBanking.Account do
 
   def update(_, _), do: {:error, :wrong_arguments}
 
-  defp deposit_identity(a, _b), do: a
+  defp deposit_identity(a, _b) do
+    case a do
+      {:ok, _} ->
+        a
+
+      _ ->
+        {:ok, a}
+    end
+  end
 
   @doc """
   Merge an `ExBanking.Account`'s latest `ExBanking.Event` into another `ExBanking.Account`.
@@ -108,29 +125,29 @@ defmodule ExBanking.Account do
     [latest_event | _] = from.events
 
     balance_f =
-      case latest_event.event do
+      case latest_event.name do
         :deposited ->
-          &+/2
+          &ExBanking.Currency.add/2
 
         :withdrawn ->
-          &-/2
+          &ExBanking.Currency.subtract/2
 
         _ ->
           &deposit_identity/2
       end
 
     new_balances =
-      if Map.has_key?(into.balances, latest_event.data.currency) do
-        last_balance = Map.get(into.balances, latest_event.data.currency)
+      if not is_nil(latest_event.currency) and
+           Map.has_key?(into.balances, latest_event.currency.code) do
+        last_balance = Map.get(into.balances, latest_event.currency.code)
 
-        Map.put(
-          into.balances,
-          latest_event.data.currency,
-          balance_f.(last_balance, latest_event.data.amount)
-        )
+        updated_balance =
+          balance_f.(last_balance, latest_event.currency) |> (fn {:ok, b} -> b end).()
+
+        Map.put(into.balances, latest_event.currency.code, updated_balance)
       else
-        if is_number(latest_event.data.amount) do
-          Map.put(into.balances, latest_event.data.currency, latest_event.data.amount)
+        if not is_nil(latest_event.currency) and latest_event.name == :deposited do
+          Map.put(into.balances, latest_event.currency.code, latest_event.currency)
         else
           into.balances
         end

@@ -1,4 +1,4 @@
-defmodule ExBanking.Data do
+defmodule ExBanking.Input do
   @moduledoc """
   Most basic set of input data from the public `ExBanking` API.
   """
@@ -16,39 +16,39 @@ defmodule ExBanking.Data do
   ]
 
   @doc """
-  Create `Data` item with initial validation of allowed argument combinations.
+  Create `ExBanking.Input` struct with initial validation of allowed argument combinations.
 
   ## Examples
 
-    iex> ExBanking.Data.create("john")
-    {:ok, %ExBanking.Data{amount: nil, currency: nil, user: "john", ts: <nanoseconds>}}
+    iex> ExBanking.Input.create("john")
+    {:ok, %ExBanking.Input{amount: nil, currency: nil, user: "john", ts: <nanoseconds>}}
 
-    iex> ExBanking.Data.create("john", "EUR")
-    {:ok, %ExBanking.Data{amount: nil, currency: "EUR", user: "john", ts: <nanoseconds>}}
+    iex> ExBanking.Input.create("john", "EUR")
+    {:ok, %ExBanking.Input{amount: nil, currency: "EUR", user: "john", ts: <nanoseconds>}}
 
-    iex> ExBanking.Data.create("john", "EUR", 1.23)
-    {:ok, %ExBanking.Data{amount: 1.23, currency: "EUR", user: "john", ts: <nanoseconds>}}
+    iex> ExBanking.Input.create("john", "EUR", 1.23)
+    {:ok, %ExBanking.Input{amount: 1.23, currency: "EUR", user: "john", ts: <nanoseconds>}}
 
-    iex> ExBanking.Data.create("")
+    iex> ExBanking.Input.create("")
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("", "")
+    iex> ExBanking.Input.create("", "")
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("john", "")
+    iex> ExBanking.Input.create("john", "")
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("john", "EUR", 0)
+    iex> ExBanking.Input.create("john", "EUR", 0)
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("john", "EUR", -24)
+    iex> ExBanking.Input.create("john", "EUR", -24)
     {:error, :wrong_arguments}
 
-    iex> ExBanking.Data.create("john", "EUR", -2.42)
+    iex> ExBanking.Input.create("john", "EUR", -2.42)
     {:error, :wrong_arguments}
   """
   @spec create(String.t(), String.t() | nil, number() | nil) ::
-          {:error, :wrong_arguments} | {:ok, ExBanking.Data.t()}
+          {:error, :wrong_arguments} | {:ok, ExBanking.Input.t()}
   def create(user, currency \\ nil, amount \\ nil)
 
   def create("", nil, nil), do: {:error, :wrong_arguments}
