@@ -138,7 +138,7 @@ defmodule ExBanking do
              | :too_many_requests_to_receiver}
   def send(from_user, to_user, amount, currency)
       when is_binary(from_user) and from_user != "" and is_binary(to_user) and to_user != "" and
-             is_number(amount) and is_binary(currency) and currency != "" do
+             is_number(amount) and is_binary(currency) and currency != "" and from_user != to_user do
     with {:ok, _from_count} <- ExBanking.RateLimiter.register_request(from_user),
          {:ok, _to_count} <- ExBanking.RateLimiter.register_request(to_user),
          {:ok, data} <- ExBanking.Input.create(from_user, currency, amount) do

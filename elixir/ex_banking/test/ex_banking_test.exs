@@ -15,6 +15,19 @@ defmodule ExBankingTest do
     assert last_result == {:ok, 42.00}
   end
 
+  test "sending money to yourself is not allowed" do
+    last_result =
+      [
+        fn -> ExBanking.create_user("ta2") end,
+        fn -> ExBanking.deposit("ta2", 1.42, "eur") end,
+        fn -> ExBanking.send("ta2", "ta2", 0.42, "eur") end
+      ]
+      |> Enum.map(fn f -> f.() end)
+      |> Enum.at(2)
+
+    assert last_result == {:error, :wrong_arguments}
+  end
+
   test "send with enough money" do
     last_result =
       [
