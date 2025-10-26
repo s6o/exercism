@@ -41,7 +41,12 @@ defmodule IslandsEngine.Game do
   def init(player_name) do
     player1 = %{name: player_name, board: Board.new(), guesses: Guesses.new()}
     player2 = %{name: nil, board: Board.new(), guesses: Guesses.new()}
-    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}, @timeout}
+
+    initial_state =
+      %{player1: player1, player2: player2, rules: Rules.new()}
+
+    send(self(), {:set_state, player_name})
+    {:ok, initial_state, @timeout}
   end
 
   def handle_call({:add_player, player_name}, _from, state) do
@@ -107,14 +112,38 @@ defmodule IslandsEngine.Game do
     end
   end
 
+  def handle_info({:set_state, player_name}, state) do
+    new_state =
+      case :ets.lookup(:game_state, player_name) do
+        [] -> state
+        [{_key, s}] -> s
+      end
+
+    :ets.insert(:game_state, {player_name, new_state})
+    {:noreply, new_state, @timeout}
+  end
+
   def handle_info(:timeout, state) do
     {:stop, {:shutdown, :timeout}, state}
   end
+
+  def terminate({:shutdown, :timeout}, state) do
+    :ets.delete(:game_state, state.player1.name)
+    :ok
+  end
+
+  def terminate(_reason, _state), do: :ok
 
   defp opponent(:player1), do: :player2
   defp opponent(:player2), do: :player1
 
   defp player_board(state, player), do: Map.get(state, player).board
 
-  defp reply_tuple(state, response), do: {:reply, response, state, @timeout}
+  defp reply_tuple(state, response) do
+    if response == :ok do
+      :ets.insert(:game_state, {state.player1.name, state})
+    end
+
+    {:reply, response, state, @timeout}
+  end
 end
