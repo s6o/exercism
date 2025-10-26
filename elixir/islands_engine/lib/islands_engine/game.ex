@@ -8,29 +8,40 @@ defmodule IslandsEngine.Game do
   alias IslandsEngine.Rules
 
   @players [:player1, :player2]
+  @timeout 10 * 60 * 1000
+
+  def child_spec(player_name) when is_binary(player_name),
+    do: %{
+      id: __MODULE__,
+      restart: :transient,
+      start: {__MODULE__, :start_link, [player_name]}
+    }
 
   def start_link(player_name) when is_binary(player_name),
     do: GenServer.start_link(__MODULE__, player_name, name: via_tuple(player_name))
 
-  def add_player(game_pid, player_name) when is_pid(game_pid) and is_binary(player_name),
-    do: GenServer.call(game_pid, {:add_player, player_name})
+  def add_player(game, player_name) when is_binary(player_name),
+    do: GenServer.call(game, {:add_player, player_name})
 
-  def position_island(game_pid, player, shape, row, col)
-      when is_pid(game_pid) and player in @players and is_atom(shape) and is_integer(row) and
-             is_integer(col),
-      do: GenServer.call(game_pid, {:position_island, player, shape, row, col})
+  def position_island(game, player, shape, row, col)
+      when player in @players and is_atom(shape) and is_integer(row) and is_integer(col),
+      do: GenServer.call(game, {:position_island, player, shape, row, col})
 
-  def set_islands(game_pid, player) when is_pid(game_pid) and player in @players,
-    do: GenServer.call(game_pid, {:set_islands, player})
+  def set_islands(game, player) when player in @players,
+    do: GenServer.call(game, {:set_islands, player})
 
-  def guess_coordinate(game_pid, player, row, col)
-      when is_pid(game_pid) and player in @players and is_integer(row) and is_integer(col),
-      do: GenServer.call(game_pid, {:guess_coordinate, player, row, col})
+  def guess_coordinate(game, player, row, col)
+      when player in @players and is_integer(row) and is_integer(col),
+      do: GenServer.call(game, {:guess_coordinate, player, row, col})
+
+  def via_tuple(player_name) do
+    {:via, Registry, {Registry.Game, "#{player_name}"}}
+  end
 
   def init(player_name) do
     player1 = %{name: player_name, board: Board.new(), guesses: Guesses.new()}
     player2 = %{name: nil, board: Board.new(), guesses: Guesses.new()}
-    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}}
+    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}, @timeout}
   end
 
   def handle_call({:add_player, player_name}, _from, state) do
@@ -38,9 +49,9 @@ defmodule IslandsEngine.Game do
       state
       |> (fn s -> put_in(s.player2.name, player_name) end).()
       |> (fn s -> put_in(s.rules, rules) end).()
-      |> (fn s -> {:reply, :ok, s} end).()
+      |> reply_tuple(:ok)
     else
-      e -> {:reply, e, state}
+      e -> reply_tuple(state, e)
     end
   end
 
@@ -52,10 +63,9 @@ defmodule IslandsEngine.Game do
       state
       |> (fn s -> put_in(s, [player, :board], board) end).()
       |> (fn s -> put_in(s.rules, rules) end).()
-      |> (fn s -> {:reply, :ok, s} end).()
+      |> reply_tuple(:ok)
     else
-      e ->
-        {:reply, e, state}
+      e -> reply_tuple(state, e)
     end
   end
 
@@ -64,13 +74,13 @@ defmodule IslandsEngine.Game do
          true <- Board.all_islands_positioned?(player_board(state, player)) do
       state
       |> (fn s -> put_in(s.rules, rules) end).()
-      |> (fn s -> {:reply, :ok, s} end).()
+      |> reply_tuple(:ok)
     else
       false ->
-        {:reply, {:error, :not_all_islands_positioned}, state}
+        reply_tuple(state, {:error, :not_all_islands_positioned})
 
       e ->
-        {:reply, e, state}
+        reply_tuple(state, e)
     end
   end
 
@@ -91,11 +101,14 @@ defmodule IslandsEngine.Game do
             )
           end).()
       |> (fn s -> put_in(s.rules, rules) end).()
-      |> (fn s -> {:reply, {hit_or_miss, forested_island, win_status}, s} end).()
+      |> reply_tuple({hit_or_miss, forested_island, win_status})
     else
-      e ->
-        {:reply, e, state}
+      e -> reply_tuple(state, e)
     end
+  end
+
+  def handle_info(:timeout, state) do
+    {:stop, {:shutdown, :timeout}, state}
   end
 
   defp opponent(:player1), do: :player2
@@ -103,7 +116,5 @@ defmodule IslandsEngine.Game do
 
   defp player_board(state, player), do: Map.get(state, player).board
 
-  defp via_tuple(player_name) do
-    {:via, Registry, {Registry.Game, "#{player_name}-#{:rand.uniform(1000)}"}}
-  end
+  defp reply_tuple(state, response), do: {:reply, response, state, @timeout}
 end

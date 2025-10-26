@@ -6,7 +6,8 @@ defmodule IslandsEngine.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Registry, keys: :unique, name: Registry.Game}
+      {Registry, keys: :unique, name: Registry.Game},
+      IslandsEngine.GameSupervisor
     ]
 
     opts = [strategy: :one_for_one, name: IslandsEngine.Supervisor]
