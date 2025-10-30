@@ -18,6 +18,7 @@ defmodule IslandsInterfaceWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    post "/new-game", PageController, :new_game
   end
 
   # Other scopes may use custom stacks.

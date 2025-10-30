@@ -22,7 +22,15 @@
     </p>
     <div class="flex">
       <div class="w-full sm:w-auto">
-        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3"></div>
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+          <.form action="/new-game" method="post">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">What is your name?</legend>
+              <input type="text" class="input" name="player1" />
+            </fieldset>
+            <input type="submit" value="New Game" class="btn" />
+          </.form>
+        </div>
       </div>
     </div>
   </div>
