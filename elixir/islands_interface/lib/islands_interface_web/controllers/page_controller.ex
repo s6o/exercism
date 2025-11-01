@@ -4,7 +4,8 @@ defmodule IslandsInterfaceWeb.PageController do
   alias IslandsEngine.GameSupervisor
 
   def home(conn, _params) do
-    render(conn, :home)
+    assign(conn, :form, %{"player1" => ""})
+    |> render(:home)
   end
 
   def new_game(conn, %{"player1" => player1}) do

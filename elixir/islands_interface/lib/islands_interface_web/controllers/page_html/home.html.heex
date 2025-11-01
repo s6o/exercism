@@ -20,16 +20,35 @@
     <p class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-balance">
       Islands Game
     </p>
+    <br />
+    <div id="game-icon" role="alert" class="alert">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="stroke-info h-6 w-6 shrink-0"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        >
+        </path>
+      </svg>
+      <span id="game-info">No games.</span>
+    </div>
     <div class="flex">
       <div class="w-full sm:w-auto">
-        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-          <.form action="/new-game" method="post">
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">What is your name?</legend>
-              <input type="text" class="input" name="player1" />
-            </fieldset>
-            <input type="submit" value="New Game" class="btn" />
-          </.form>
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">New Game: player name</legend>
+            <input type="text" class="input" id="player1" name="player1" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Join Game: your name</legend>
+            <input type="text" class="input" id="player2" name="player2" />
+          </fieldset>
         </div>
       </div>
     </div>
