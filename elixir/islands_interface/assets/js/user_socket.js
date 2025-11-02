@@ -57,7 +57,7 @@ player1.addEventListener("keypress", event => {
     let topic = "game:" + player1.value
 
     if (player.length > 0) {
-      let gameChannel = socket.channel(topic);
+      let gameChannel = socket.channel(topic, {player: player});
 
       gameChannel.on("players_added", payload => {
         notify(payload[player])
@@ -93,7 +93,7 @@ player2.addEventListener("keypress", event => {
     let topic = "game:" + player1Name;
 
     if (player1Name.length > 0 && player2Name.length > 0) {
-      gameChannel = socket.channel(topic);
+      gameChannel = socket.channel(topic, {player: player2Name});
 
       gameChannel.on("players_added", payload => {
         notify(payload[player2Name])
@@ -120,6 +120,5 @@ player2.addEventListener("keypress", event => {
     }
   }
 })
-
 
 export default socket

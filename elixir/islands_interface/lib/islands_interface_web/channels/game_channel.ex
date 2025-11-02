@@ -7,21 +7,17 @@ defmodule IslandsInterfaceWeb.GameChannel do
   alias IslandsInterfaceWeb.Presence
 
   @impl true
-  def join("game:lobby", payload, socket) do
-    if authorized?(payload) do
-      payload =
-        players_waiting()
-        |> players_payload()
+  def join("game:lobby", _, socket) do
+    payload =
+      players_waiting()
+      |> players_payload()
 
-      {:ok, payload, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
+    {:ok, payload, socket}
   end
 
   @impl true
-  def join("game:" <> player, payload, socket) do
-    if authorized?(payload) do
+  def join("game:" <> _player, %{"player" => player}, socket) do
+    if authorized?(socket, player) do
       send(self(), {:after_join, player})
       {:ok, socket}
     else
@@ -84,9 +80,21 @@ defmodule IslandsInterfaceWeb.GameChannel do
     {:noreply, socket}
   end
 
-  # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
+  defp authorized?(socket, player_name) do
+    number_of_players(socket) < 2 && not existing_player?(socket, player_name)
+  end
+
+  defp number_of_players(socket) do
+    socket
+    |> Presence.list()
+    |> Map.keys()
+    |> length()
+  end
+
+  defp existing_player?(socket, player_name) do
+    socket
+    |> Presence.list()
+    |> Map.has_key?(player_name)
   end
 
   defp players_waiting() do
