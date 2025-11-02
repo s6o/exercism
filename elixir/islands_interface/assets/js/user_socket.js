@@ -12,15 +12,29 @@ import {Socket} from "phoenix"
 let socket = new Socket("/socket", {authToken: window.userToken})
 socket.connect()
 
-// Initialized game Channels waiting for 2nd player
-let gameChannels = [];
-// Channels with a game were both players have joined
-let activeGames = [];
-
 let gameIcon          = document.querySelector("#game-icon")
 let gameInfo          = document.querySelector("#game-info")
+let gamesWaiting      = document.querySelector("#games-waiting")
+let gameStart         = document.querySelector("#game-start")
+let gameJoin          = document.querySelector("#game-join")
 let player1           = document.querySelector("#player1")
+let playerReady       = document.querySelector("#player-ready")
 let player2           = document.querySelector("#player2")
+
+
+let gameLobby = socket.channel("game:lobby");
+gameLobby.join()
+  .receive("ok", resp => {
+    notify("Entered game lobby, start a game or join an existing player.")
+    gamesWaiting.textContent = `Games waiting: ${resp.players}`
+  })
+  .receive("error", resp => {
+    console.log("Unable to join game lobby.", resp)
+    notifyError("Unable to join game lobby.")
+  })
+gameLobby.on("games_waiting", payload => {
+  gamesWaiting.textContent = `Games waiting: ${payload.players}`;
+})
 
 function notify(message) {
   gameIcon.className = "alert"
@@ -37,50 +51,65 @@ function notifyWarning(message) {
   gameInfo.innerHTML = message;
 }
 
-
 player1.addEventListener("keypress", event => {
-  if (event.key === 'Enter' && player1.value.length > 0) {
-    topic = "game:" + player1.value
-    let topicChannel = gameChannels.filter((ch, _, __) => ch.topic == topic)[0]
-    console.log("Topic channel", topicChannel)
-    if (topicChannel) {
-      topicChannel.push("new_game")
-    } else {
-      gameChannels.push(socket.channel("game:" + player1.value))
-      index = gameChannels.length - 1;
-      gameChannels[index].join()
+  if (event.key === 'Enter') {
+    let player = player1.value
+    let topic = "game:" + player1.value
+
+    if (player.length > 0) {
+      let gameChannel = socket.channel(topic);
+
+      gameChannel.on("players_added", payload => {
+        notify(payload[player])
+      })
+
+      gameChannel.join()
         .receive("ok", resp => {
-          let players = gameChannels.map((ch) => ch.topic.split(":")[1]).join(", ")
-          notify("Games waiting: " + players)
-          gameChannels[index].push("new_game")
+          let payload = {player: player}
+          console.log("New game payload", payload, player)
+          gameChannel.push("new_game", payload).receive("ok", resp => {
+            notify(`Game with ${player} waiting for 2nd player.`)
+            gameStart.style.display = "none"
+            gameJoin.style.display = "none"
+          })
         })
         .receive("error", resp => {
-          console.log("Unable to join game", resp)
+          console.log("Unable to create game", resp)
           notifyError("Unable to create game")
         })
+      player1.value = ""
     }
-    player1.value = ""
   }
 })
 
 player2.addEventListener("keypress", event => {
   if (event.key === 'Enter') {
-    if (gameChannels.length > 0 && player2.value.length > 0) {
-      activateChannel = gameChannels.shift()
-      let p1 = activateChannel.topic.split(":")[1];
-      let p2 = player2.value
-      activeGames.push(activateChannel)
-      activateChannel.push("add_player", p2).receive("error", resp => {
-        notifyError("Unable to add new player: " + p2)
-        console.log("Unable to add new player: " + p2, resp)
+    let player1Name = playerReady.value;
+    let player2Name = player2.value;
+    let topic = "game:" + player1Name;
+
+    if (player1Name.length > 0 && player2Name.length > 0) {
+      gameChannel = socket.channel(topic);
+
+      gameChannel.on("players_added", payload => {
+        notify(payload[player2Name])
       })
-      activateChannel.on("player_added", resp => {
-        notify(`New Game with ${p1} and ${p2}`)
-      })
-    } else {
-      notifyWarning("No active games to join, initialize one first.")
+
+      gameChannel.join()
+        .receive("ok", resp => {
+          payload = {player1: player1Name, player2: player2Name}
+          gameChannel.push("add_player", payload).receive("ok", resp => {
+            gameStart.style.display = "none"
+            gameJoin.style.display = "none"
+          })
+        })
+        .receive("error", resp => {
+          console.log("Unable to join game", resp)
+          notifyError("Unable to join game.")
+        })
+      playerReady.value = ""
+      player2.value = ""
     }
-    player2.value = ""
   }
 })
 

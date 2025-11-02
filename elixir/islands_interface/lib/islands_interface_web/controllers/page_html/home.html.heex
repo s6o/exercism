@@ -21,6 +21,10 @@
       Islands Game
     </p>
     <br />
+    <div role="alert" class="alert">
+      <span id="games-waiting">Games waiting:</span>
+    </div>
+    <br />
     <div id="game-icon" role="alert" class="alert">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -36,17 +40,19 @@
         >
         </path>
       </svg>
-      <span id="game-info">No games.</span>
+      <span id="game-info">Welcome to game lobby</span>
     </div>
     <div class="flex">
       <div class="w-full sm:w-auto">
         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-          <fieldset class="fieldset">
+          <fieldset class="fieldset" id="game-start">
             <legend class="fieldset-legend">New Game: player name</legend>
             <input type="text" class="input" id="player1" name="player1" />
           </fieldset>
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Join Game: your name</legend>
+          <fieldset class="fieldset" id="game-join">
+            <legend class="fieldset-legend">Join Game with player</legend>
+            <input type="text" class="input" id="player-ready" name="player-ready" />
+            <legend class="fieldset-legend">as</legend>
             <input type="text" class="input" id="player2" name="player2" />
           </fieldset>
         </div>
