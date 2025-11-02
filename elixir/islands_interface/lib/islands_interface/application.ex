@@ -1,6 +1,4 @@
 defmodule IslandsInterface.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -13,6 +11,7 @@ defmodule IslandsInterface.Application do
       {Phoenix.PubSub, name: IslandsInterface.PubSub},
       # Start a worker by calling: IslandsInterface.Worker.start_link(arg)
       # {IslandsInterface.Worker, arg},
+      IslandsInterfaceWeb.Presence,
       # Start to serve requests, typically the last entry
       IslandsInterfaceWeb.Endpoint
     ]

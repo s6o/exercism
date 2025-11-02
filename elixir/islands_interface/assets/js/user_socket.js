@@ -62,6 +62,9 @@ player1.addEventListener("keypress", event => {
       gameChannel.on("players_added", payload => {
         notify(payload[player])
       })
+      gameChannel.on("show_subscribers", payload => {
+        console.log("Show subscribers", payload)
+      })
 
       gameChannel.join()
         .receive("ok", resp => {
@@ -72,6 +75,7 @@ player1.addEventListener("keypress", event => {
             gameStart.style.display = "none"
             gameJoin.style.display = "none"
           })
+          gameChannel.push("show_subscribers")
         })
         .receive("error", resp => {
           console.log("Unable to create game", resp)
@@ -94,6 +98,9 @@ player2.addEventListener("keypress", event => {
       gameChannel.on("players_added", payload => {
         notify(payload[player2Name])
       })
+      gameChannel.on("show_subscribers", payload => {
+        console.log("Show subscribers", payload)
+      })
 
       gameChannel.join()
         .receive("ok", resp => {
@@ -107,6 +114,7 @@ player2.addEventListener("keypress", event => {
           console.log("Unable to join game", resp)
           notifyError("Unable to join game.")
         })
+      gameChannel.push("show_subscribers")
       playerReady.value = ""
       player2.value = ""
     }

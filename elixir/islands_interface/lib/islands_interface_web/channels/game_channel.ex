@@ -1,9 +1,10 @@
 defmodule IslandsInterfaceWeb.GameChannel do
   use IslandsInterfaceWeb, :channel
 
-  alias IslandsInterfaceWeb.Endpoint
   alias IslandsEngine.Game
   alias IslandsEngine.GameSupervisor
+  alias IslandsInterfaceWeb.Endpoint
+  alias IslandsInterfaceWeb.Presence
 
   @impl true
   def join("game:lobby", payload, socket) do
@@ -19,12 +20,19 @@ defmodule IslandsInterfaceWeb.GameChannel do
   end
 
   @impl true
-  def join("game:" <> _player, payload, socket) do
+  def join("game:" <> player, payload, socket) do
     if authorized?(payload) do
+      send(self(), {:after_join, player})
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  @impl true
+  def handle_in("show_subscribers", _payload, socket) do
+    broadcast!(socket, "subscribers", Presence.list(socket))
+    {:noreply, socket}
   end
 
   @impl true
@@ -41,6 +49,7 @@ defmodule IslandsInterfaceWeb.GameChannel do
     end
   end
 
+  @impl true
   def handle_in("add_player", %{"player1" => player1, "player2" => player2}, socket) do
     case Game.add_player(Game.via_tuple(player1), player2) do
       :ok ->
@@ -63,6 +72,16 @@ defmodule IslandsInterfaceWeb.GameChannel do
       :error ->
         {:reply, :error, socket}
     end
+  end
+
+  @impl true
+  def handle_info({:after_join, screen_name}, socket) do
+    {:ok, _} =
+      Presence.track(socket, screen_name, %{
+        online_at: inspect(System.system_time(:second))
+      })
+
+    {:noreply, socket}
   end
 
   # Add authorization logic here as required.
