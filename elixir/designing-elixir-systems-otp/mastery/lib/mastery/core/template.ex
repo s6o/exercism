@@ -18,10 +18,12 @@ defmodule Mastery.Core.Template do
           instructions: binary(),
           raw: binary(),
           compiled: Macro.t(),
-          generators: %{required(binary()) => [any()] | function()},
-          checker: (substitutions(), binary() -> boolean())
+          generators: %{required(atom()) => generator()},
+          checker: (substitutions(), any() -> boolean())
         }
-  @type substitutions :: %{required(binary()) => any()}
+
+  @type generator :: [any()] | function()
+  @type substitutions :: %{required(atom()) => any()}
 
   defstruct [
     :name,
@@ -32,4 +34,10 @@ defmodule Mastery.Core.Template do
     :generators,
     :checker
   ]
+
+  @spec new(fields :: Keyword.t()) :: t()
+  def new(fields) do
+    raw = Keyword.fetch!(fields, :raw)
+    struct!(__MODULE__, Keyword.put(fields, :compiled, EEx.compile_string(raw)))
+  end
 end
