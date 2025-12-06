@@ -3,7 +3,7 @@ defmodule Mastery.Core.Question do
   Fields:
   - asked: the question text for a user, e.g. "1 + 2"
   - substitutions: the values chosen for each substitution field in a template, e.g.
-    template `<%=left%>+<%=right%>`, the substitutions: `%{"left"=>1, "right"=>2}`
+    template `<%= @left %>+<%= @right %>`, the substitutions: `%{:left=>1, :right=>2}`
   - template: the template that created the question
   """
   @type t :: %__MODULE__{
