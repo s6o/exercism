@@ -116,8 +116,6 @@ defmodule Mastery.Core.Quiz do
 
   defp save_response(quiz, response), do: Map.put(quiz, :last_response, response)
 
-  defp select_random_question(%__MODULE__{templates: %{}}), do: nil
-
   defp select_random_question(quiz) do
     quiz.templates
     |> Enum.random()
@@ -156,4 +154,6 @@ defmodule Mastery.Core.Quiz do
        when map_size(templates) == 0 do
     %__MODULE__{quiz | templates: Enum.group_by(used, fn t -> t.category end), used: []}
   end
+
+  defp reset_template_cycle(quiz), do: quiz
 end
