@@ -11,7 +11,7 @@ defmodule Mastery.Core.Quiz do
   - record: the number of correct answers in a row a user has given for each template
   """
   @type t :: %__MODULE__{
-          title: binary() | nil,
+          title: atom() | binary() | nil,
           mastery: pos_integer(),
           templates: %{} | %{required(binary()) => [Mastery.Core.Template.t()]},
           used: [] | [Mastery.Core.Template.t()],
