@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Configuration
+@inherits BunitContext
+
+@code
+{
+  [Fact]
+  public void RequiredFieldControlsArePresent()
+  {
+    var builder = WebApplication.CreateBuilder();
+    var connectionString = builder.Configuration.GetConnectionString("AppDbCtx") ?? throw new
+    InvalidOperationException("Connection string 'AppDbCtx' not found.");
+
+    Services.AddDbContextFactory<AppDbCtx>(options => options.UseSqlite(connectionString));
+    Services.AddQuickGridEntityFrameworkAdapter();
+    Services.AddDatabaseDeveloperPageExceptionFilter();
+
+    // Act
+    var cut = Render(@<Create />);
+
+    // Assert
+    string descriptionTag = cut.Find("[id=description]").TagName.ToLower();
+    descriptionTag.MarkupMatches("textarea");
+
+    string inputTag = cut.Find("[id=deadline]").TagName.ToLower();
+    inputTag.MarkupMatches("input");
+
+    // Create form is initialied with current date for deadline
+    string defaultDate = DateTime.Now.ToString("yyyy-MM-dd");
+    string deadlineDate = cut.Find("[id=deadline]").GetAttribute("value")!.ToString();
+
+    Assert.Contains(defaultDate, deadlineDate);
+  }
+}

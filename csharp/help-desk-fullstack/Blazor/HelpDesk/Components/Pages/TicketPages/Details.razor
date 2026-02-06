@@ -1,0 +1,53 @@
+@page "/tickets/details"
+@using Microsoft.EntityFrameworkCore
+@using HelpDesk
+@inject IDbContextFactory<AppDbCtx> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Ticket</h2>
+    <hr />
+    @if (ticket is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Created at</dt>
+            <dd class="col-sm-10">@ticket.Timestamp</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@ticket.Description</dd>
+            <dt class="col-sm-2">Deadline</dt>
+            <dd class="col-sm-10">@ticket.Deadline</dd>
+            <dt class="col-sm-2">Solved</dt>
+            <dd class="col-sm-10">@(ticket.IsDone ? "Yes" : "No")</dd>
+        </dl>
+        <div>
+            <a href="@($"/tickets/edit?id={ticket.Id}")">Edit</a> |
+            <a href="@($"/tickets")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Ticket? ticket;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ticket = await context.Ticket.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (ticket is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

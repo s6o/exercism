@@ -1,0 +1,57 @@
+@page "/new-ticket"
+@using Microsoft.EntityFrameworkCore
+@using HelpDesk
+@inject IDbContextFactory<AppDbCtx> DbFactory
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>New Ticket</PageTitle>
+
+<h1>New Ticket</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Ticket" OnValidSubmit="AddTicket" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <InputTextArea id="description" @bind-Value="Ticket.Description" class="form-control" />
+                <ValidationMessage For="() => Ticket.Description" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="deadline" class="form-label">Deadline:</label>
+                <InputDate id="deadline" Type="InputDateType.DateTimeLocal" @bind-Value="Ticket.Deadline"
+                    class="form-control" />
+                <ValidationMessage For="() => Ticket.Deadline" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Ticket Ticket { get; set; } = default!;
+
+    protected override void OnInitialized() => Ticket ??= new Ticket { Deadline = DateTime.Now };
+
+    // To protect from overposting attacks, see
+    // https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddTicket()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Ticket.IsDone = false;
+        Ticket.Timestamp = DateTime.Now;
+        if (string.IsNullOrWhiteSpace(Ticket.Description) == false)
+        {
+            context.Ticket.Add(Ticket);
+            await context.SaveChangesAsync();
+            NavigationManager.NavigateTo("/tickets");
+        }
+        else
+        {
+            throw new Exception("Form submitted without valid description");
+        }
+    }
+}

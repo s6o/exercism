@@ -1,0 +1,49 @@
+@page "/tickets"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
+@using HelpDesk
+@implements IAsyncDisposable
+@inject IDbContextFactory<AppDbCtx> DbFactory
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Tickets</PageTitle>
+
+<h1>Tickets</h1>
+
+<QuickGrid Class="table table-hover" Items="ActiveTickets" RowClass="@(t => RowCss(t))">
+    <PropertyColumn Property="ticket => ticket.Deadline" Sortable="true" />
+    <PropertyColumn Property="ticket => ticket.Description" />
+    <PropertyColumn Property="ticket => ticket.Timestamp" Title="Created at" Sortable="true" />
+
+    <TemplateColumn Context="ticket">
+        <a href="@($"tickets/edit?id={ticket.Id}")">Edit</a> |
+        <a href="@($"tickets/details?id={ticket.Id}")">Details</a> |
+        <a href="@($"tickets/delete?id={ticket.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private AppDbCtx context = default!;
+
+    protected string RowCss(Ticket t)
+    {
+        var diff = (t.Deadline - DateTime.Now).TotalHours;
+        if (diff <= 1.0)
+        {
+            return "table-danger";
+        }
+        else
+        {
+            return "";
+        }
+    }
+    IQueryable<Ticket> ActiveTickets => context.Ticket.Where(t => t.IsDone == false).OrderByDescending(t => t.Deadline);
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

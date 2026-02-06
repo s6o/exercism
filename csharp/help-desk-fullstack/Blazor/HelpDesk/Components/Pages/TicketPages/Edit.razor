@@ -1,0 +1,106 @@
+@page "/tickets/edit"
+@using Microsoft.EntityFrameworkCore
+@using HelpDesk
+@inject IDbContextFactory<AppDbCtx> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Update Ticket</PageTitle>
+
+<h1>Update Ticket</h1>
+
+<hr />
+@if (Ticket is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Ticket" OnValidSubmit="UpdateTicket" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+                <input type="hidden" name="Ticket.Id" value="@Ticket.Id" />
+                <div class="mb-3">
+                    <label for="isdone" class="form-label">Mark as Solved:</label>
+                    <InputCheckbox id="isdone" @bind-Value="Ticket.IsDone" class="form-check-input" />
+                    <ValidationMessage For="() => Ticket.IsDone" class="text-danger" />
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="/tickets">Back to List</a>
+                </div>
+                <div class="mt-4">
+                    <div class="mb-3">
+                        <label for="deadline" class="form-label">Deadline:</label>
+                        <InputDate readonly id="deadline" Type="InputDateType.DateTimeLocal" @bind-Value="Ticket.Deadline"
+                            class="form-control" />
+                        <ValidationMessage For="() => Ticket.Deadline" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="timestamp" class="form-label">Created at:</label>
+                        <InputDate readonly id="timestamp" Type="InputDateType.DateTimeLocal" @bind-Value="Ticket.Timestamp"
+                            class="form-control" />
+                        <ValidationMessage For="() => Ticket.Timestamp" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <InputTextArea readonly id="description" @bind-Value="Ticket.Description" class="form-control" />
+                        <ValidationMessage For="() => Ticket.Description" class="text-danger" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Ticket? Ticket { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Ticket ??= await context.Ticket.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Ticket is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateTicket()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Ticket!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TicketExists(Ticket!.Id))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/tickets");
+    }
+
+    private bool TicketExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Ticket.Any(e => e.Id == id);
+    }
+}

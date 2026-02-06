@@ -1,0 +1,57 @@
+@model HelpDeskMVC.Models.TicketsFilterViewModel;
+
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<h1>Tickets</h1>
+
+<form asp-controller="Tickets" asp-action="Index" method="get">
+    <p>
+        <label>Description: <input type="text" name="SearchString" value="@Model.SearchString" /></label>
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Tickets[0].CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tickets[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tickets[0].Deadline)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tickets[0].IsDone)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Tickets)
+        {
+            <tr class="@(item.PastDue ? "table-danger" : "")">
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Deadline)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsDone)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

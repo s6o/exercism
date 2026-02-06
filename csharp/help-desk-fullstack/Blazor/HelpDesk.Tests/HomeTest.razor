@@ -1,0 +1,14 @@
+@inherits BunitContext
+
+@code
+{
+  [Fact]
+  public void HomeComponentRedersCorrectly()
+  {
+    // Act
+    var cut = Render(@<Home />);
+
+    // Assert
+    cut.MarkupMatches(@<h2>Simple single user Help Desk demo with SQLite</h2>);
+  }
+}
