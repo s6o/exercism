@@ -1,0 +1,25 @@
+{
+  "authors": [
+    "mikedamay"
+  ],
+  "contributors": [
+    "ErikSchierboom",
+    "yzAlvin"
+  ],
+  "files": {
+    "solution": [
+      "ObjectRelationalMapping.cs"
+    ],
+    "test": [
+      "ObjectRelationalMappingTests.cs"
+    ],
+    "exemplar": [
+      ".meta/Exemplar.cs"
+    ],
+    "invalidator": [
+      "Database.cs",
+      "ObjectRelationalMapping.csproj"
+    ]
+  },
+  "blurb": "Learn about the IDisposable interface by implementing an ORM system."
+}
