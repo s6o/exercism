@@ -29,7 +29,7 @@ public class Robot
         var tries = 0;
         do
         {
-            index = rnd.Next(0, names.Count - 1);
+            index = rnd.Next(0, names.Count);
             tries += 1;
         } while (names[index].taken || tries >= names.Count);
         if (tries >= names.Count)
