@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+cp ./hello-world/.gitignore "$1"
+chmod 0755 "$1/gradlew"
+
+exit 0
