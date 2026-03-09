@@ -2,5 +2,6 @@
 #
 cp ./hello-world/.gitignore "$1"
 chmod 0755 "$1/gradlew"
+echo "org.gradle.configuration-cache=true" > "$1/gradle.properties"
 
 exit 0
